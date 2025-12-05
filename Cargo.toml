@@ -3,6 +3,11 @@ name = "vcv-rs"
 version = "0.1.0"
 edition = "2024"
 description = "Fast Visual Studio environment setup"
+license = "MIT"
+authors = ["joss13@gmail.com"]
+repository = "https://github.com/ssoj13/vcv-rs"
+homepage = "https://github.com/ssoj13/vcv-rs"
+documentation = "https://docs.rs/vcv-rs"
 
 [dependencies]
 winreg = "0.55"
