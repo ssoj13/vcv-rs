@@ -1,10 +1,10 @@
-# vcv
+# vcv-rs
 
 Fast Visual Studio environment setup. **~50x faster** than `vcvars64.bat`.
 
 | | Time |
 |---|---:|
-| `vcv` | ~20ms |
+| `vcv-rs` | ~20ms |
 | `vcvars64.bat` | ~2000ms |
 
 ## Why?
@@ -26,7 +26,7 @@ This tool does the same job with:
 ```powershell
 # Build from source
 cargo build --release
-copy target\release\vcv.exe C:\bin\
+copy target\release\vcv-rs.exe C:\bin\
 ```
 
 ## Usage
@@ -35,34 +35,34 @@ copy target\release\vcv.exe C:\bin\
 
 ```powershell
 # Apply environment (auto-detect shell)
-vcv | iex
+vcv-rs | iex
 
 # Quiet mode
-vcv -q | iex
+vcv-rs -q | iex
 
 # Add to $PROFILE
-function vcvars { vcv @args | iex }
+function vcvars { vcv-rs @args | iex }
 ```
 
 ### CMD
 
 ```cmd
-vcv -f cmd > vcenv.bat && vcenv.bat
+vcv-rs -f cmd > vcenv.bat && vcenv.bat
 
 :: Or inline
-for /f "delims=" %i in ('vcv -f cmd') do @%i
+for /f "delims=" %i in ('vcv-rs -f cmd') do @%i
 ```
 
 ### Bash / MSYS2
 
 ```bash
-eval $(vcv -f sh)
+eval $(vcv-rs -f sh)
 ```
 
 ### JSON (for tools)
 
 ```powershell
-vcv -f json -q
+vcv-rs -f json -q
 ```
 
 ## Options
@@ -81,19 +81,19 @@ vcv -f json -q
 
 ```powershell
 # x64 native (default)
-vcv | iex
+vcv-rs | iex
 
 # x86 target
-vcv -a x86 | iex
+vcv-rs -a x86 | iex
 
 # Cross-compile for ARM64
-vcv -a arm64 | iex
+vcv-rs -a arm64 | iex
 
 # Use specific VS version
-vcv -v 2019 | iex
+vcv-rs -v 2019 | iex
 
 # JSON for parsing
-vcv -f json | ConvertFrom-Json
+vcv-rs -f json | ConvertFrom-Json
 ```
 
 ## Output
