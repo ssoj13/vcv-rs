@@ -65,12 +65,12 @@ fn detect_shell() -> Format {
     if std_env::var("MSYSTEM").is_ok() {
         return Format::Sh;
     }
-    // PowerShell sets PSModulePath
-    if std_env::var("PSModulePath").is_ok() {
-        return Format::Ps;
+    // CMD always sets PROMPT variable
+    if std_env::var("PROMPT").is_ok() {
+        return Format::Cmd;
     }
-    // Default to cmd on Windows
-    Format::Cmd
+    // Default to PowerShell on Windows
+    Format::Ps
 }
 
 const EXAMPLES: &str = r#"
