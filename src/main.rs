@@ -61,16 +61,31 @@ enum Format {
 
 /// Detect current shell from environment
 fn detect_shell() -> Format {
-    // MSYS2/Git Bash
+    // MSYS2/Git Bash on Windows
     if std_env::var("MSYSTEM").is_ok() {
         return Format::Sh;
     }
-    // CMD always sets PROMPT variable
+    // zsh (macOS default, Linux)
+    if std_env::var("ZSH_VERSION").is_ok() {
+        return Format::Sh;
+    }
+    // bash
+    if std_env::var("BASH_VERSION").is_ok() {
+        return Format::Sh;
+    }
+    // PowerShell (has PSModulePath)
+    if std_env::var("PSModulePath").is_ok() {
+        return Format::Ps;
+    }
+    // CMD (has PROMPT but not PSModulePath)
     if std_env::var("PROMPT").is_ok() {
         return Format::Cmd;
     }
-    // Default to PowerShell on Windows
-    Format::Ps
+    // Default: sh on Unix, ps on Windows
+    #[cfg(windows)]
+    return Format::Ps;
+    #[cfg(not(windows))]
+    return Format::Sh;
 }
 
 const EXAMPLES: &str = r#"
