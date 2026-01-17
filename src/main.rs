@@ -73,13 +73,17 @@ fn detect_shell() -> Format {
     if std_env::var("BASH_VERSION").is_ok() {
         return Format::Sh;
     }
+    // CMD (PROMPT is set by default for cmd.exe sessions)
+    let is_cmd = std_env::var("PROMPT").is_ok()
+        && std_env::var("ComSpec")
+            .map(|v| v.to_ascii_lowercase().ends_with("cmd.exe"))
+            .unwrap_or(false);
+    if is_cmd {
+        return Format::Cmd;
+    }
     // PowerShell (has PSModulePath)
     if std_env::var("PSModulePath").is_ok() {
         return Format::Ps;
-    }
-    // CMD (has PROMPT but not PSModulePath)
-    if std_env::var("PROMPT").is_ok() {
-        return Format::Cmd;
     }
     // Default: sh on Unix, ps on Windows
     #[cfg(windows)]
