@@ -48,7 +48,7 @@ impl Arch {
     }
 }
 
-#[derive(Debug, Clone, Copy, ValueEnum)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
 enum Format {
     Auto,
     Ps,
@@ -61,28 +61,39 @@ enum Format {
 
 /// Detect current shell from environment
 fn detect_shell() -> Format {
+    detect_shell_with(|key| std_env::var(key).ok())
+}
+
+fn detect_shell_with<F>(mut get: F) -> Format
+where
+    F: FnMut(&str) -> Option<String>,
+{
     // MSYS2/Git Bash on Windows
-    if std_env::var("MSYSTEM").is_ok() {
+    if get("MSYSTEM").is_some() {
         return Format::Sh;
     }
     // zsh (macOS default, Linux)
-    if std_env::var("ZSH_VERSION").is_ok() {
+    if get("ZSH_VERSION").is_some() {
         return Format::Sh;
     }
     // bash
-    if std_env::var("BASH_VERSION").is_ok() {
+    if get("BASH_VERSION").is_some() {
         return Format::Sh;
     }
+    // PowerShell (pwsh sets this; avoids CMD false positive when PROMPT is set globally)
+    if get("POWERSHELL_DISTRIBUTION_CHANNEL").is_some() {
+        return Format::Ps;
+    }
     // CMD (PROMPT is set by default for cmd.exe sessions)
-    let is_cmd = std_env::var("PROMPT").is_ok()
-        && std_env::var("ComSpec")
+    let is_cmd = get("PROMPT").is_some()
+        && get("ComSpec")
             .map(|v| v.to_ascii_lowercase().ends_with("cmd.exe"))
             .unwrap_or(false);
     if is_cmd {
         return Format::Cmd;
     }
     // PowerShell (has PSModulePath)
-    if std_env::var("PSModulePath").is_ok() {
+    if get("PSModulePath").is_some() {
         return Format::Ps;
     }
     // Default: sh on Unix, ps on Windows
@@ -90,6 +101,63 @@ fn detect_shell() -> Format {
     return Format::Ps;
     #[cfg(not(windows))]
     return Format::Sh;
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::collections::HashMap;
+
+    fn detect_from(env: &[(&str, &str)]) -> Format {
+        let mut map = HashMap::new();
+        for (k, v) in env {
+            map.insert((*k).to_string(), (*v).to_string());
+        }
+        detect_shell_with(|key| map.get(key).cloned())
+    }
+
+    #[test]
+    fn detect_msystem_as_sh() {
+        assert_eq!(detect_from(&[("MSYSTEM", "MINGW64")]), Format::Sh);
+    }
+
+    #[test]
+    fn detect_zsh_as_sh() {
+        assert_eq!(detect_from(&[("ZSH_VERSION", "5.9")]), Format::Sh);
+    }
+
+    #[test]
+    fn detect_bash_as_sh() {
+        assert_eq!(detect_from(&[("BASH_VERSION", "5.2")]), Format::Sh);
+    }
+
+    #[test]
+    fn detect_cmd() {
+        assert_eq!(
+            detect_from(&[("PROMPT", "$P$G"), ("ComSpec", "C:\\Windows\\System32\\cmd.exe")]),
+            Format::Cmd
+        );
+    }
+
+    #[test]
+    fn detect_pwsh_over_cmd_prompt() {
+        assert_eq!(
+            detect_from(&[
+                ("POWERSHELL_DISTRIBUTION_CHANNEL", "PowerShell"),
+                ("PROMPT", "$P$G"),
+                ("ComSpec", "C:\\Windows\\System32\\cmd.exe"),
+            ]),
+            Format::Ps
+        );
+    }
+
+    #[test]
+    fn detect_psmodulepath_as_ps() {
+        assert_eq!(
+            detect_from(&[("PSModulePath", "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\Modules")]),
+            Format::Ps
+        );
+    }
 }
 
 const EXAMPLES: &str = r#"
