@@ -15,7 +15,7 @@ pub use format::{fmt_cmd, fmt_json, fmt_ps, fmt_sh};
 use std::fmt;
 
 /// Target or host architecture for the toolchain.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, clap::ValueEnum)]
 pub enum Arch {
     X64,
     X86,
