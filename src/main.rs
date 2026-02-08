@@ -23,30 +23,9 @@
 //! - `winreg` - Windows registry access
 //! - `serde_json` - JSON parsing (vswhere output)
 
-mod detect;
-mod env;
-mod format;
-mod registry;
-
 use clap::{Parser, ValueEnum};
+use vcv_rs::{detect, env, format, Arch};
 use std::env as std_env;
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
-pub enum Arch {
-    X64,
-    X86,
-    Arm64,
-}
-
-impl Arch {
-    pub fn as_str(&self) -> &'static str {
-        match self {
-            Arch::X64 => "x64",
-            Arch::X86 => "x86",
-            Arch::Arm64 => "arm64",
-        }
-    }
-}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
 enum Format {
@@ -80,20 +59,18 @@ where
     if get("BASH_VERSION").is_some() {
         return Format::Sh;
     }
-    // PowerShell (pwsh sets this; avoids CMD false positive when PROMPT is set globally)
-    if get("POWERSHELL_DISTRIBUTION_CHANNEL").is_some() {
-        return Format::Ps;
-    }
-    // CMD (PROMPT is set by default for cmd.exe sessions)
+    // CMD (PROMPT or CMDCMDLINE is set by cmd.exe sessions)
     let is_cmd = get("PROMPT").is_some()
-        && get("ComSpec")
-            .map(|v| v.to_ascii_lowercase().ends_with("cmd.exe"))
-            .unwrap_or(false);
+        || get("CMDCMDLINE").is_some()
+        || get("CmdCmdLine").is_some();
     if is_cmd {
         return Format::Cmd;
     }
-    // PowerShell (has PSModulePath)
-    if get("PSModulePath").is_some() {
+    // PowerShell (PSModulePath and related markers)
+    if get("PSModulePath").is_some()
+        || get("POWERSHELL_DISTRIBUTION_CHANNEL").is_some()
+        || get("PSExecutionPolicyPreference").is_some()
+    {
         return Format::Ps;
     }
     // Default: sh on Unix, ps on Windows
@@ -133,21 +110,17 @@ mod tests {
 
     #[test]
     fn detect_cmd() {
-        assert_eq!(
-            detect_from(&[("PROMPT", "$P$G"), ("ComSpec", "C:\\Windows\\System32\\cmd.exe")]),
-            Format::Cmd
-        );
+        assert_eq!(detect_from(&[("PROMPT", "$P$G")]), Format::Cmd);
     }
 
     #[test]
-    fn detect_pwsh_over_cmd_prompt() {
+    fn detect_cmd_over_pwsh_markers() {
         assert_eq!(
             detect_from(&[
                 ("POWERSHELL_DISTRIBUTION_CHANNEL", "PowerShell"),
                 ("PROMPT", "$P$G"),
-                ("ComSpec", "C:\\Windows\\System32\\cmd.exe"),
             ]),
-            Format::Ps
+            Format::Cmd
         );
     }
 

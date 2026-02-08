@@ -9,6 +9,9 @@ repository = "https://github.com/ssoj13/vcv-rs"
 homepage = "https://github.com/ssoj13/vcv-rs"
 documentation = "https://docs.rs/vcv-rs"
 
+[lib]
+name = "vcv_rs"
+
 [dependencies]
 winreg = "0.55"
 serde = { version = "1", features = ["derive"] }
