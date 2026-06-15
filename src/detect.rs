@@ -59,9 +59,9 @@ fn build_vs_info(vs: VsWhereEntry) -> Option<VsInfo> {
     let vc = install.join("VC");
     let aux = vc.join("Auxiliary").join("Build");
 
-    // Get tools version (try v143 first, then default)
-    let tools_ver = read_txt(&aux.join("Microsoft.VCToolsVersion.v143.default.txt"))
-        .or_else(|| read_txt(&aux.join("Microsoft.VCToolsVersion.default.txt")))?;
+    // Prefer the true system default; v143 file lags behind after VS updates
+    let tools_ver = read_txt(&aux.join("Microsoft.VCToolsVersion.default.txt"))
+        .or_else(|| read_txt(&aux.join("Microsoft.VCToolsVersion.v143.default.txt")))?;
 
     let tools = vc.join("Tools").join("MSVC").join(&tools_ver);
     if !tools.exists() {
