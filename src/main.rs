@@ -1,3 +1,5 @@
+#![cfg(all(windows, feature = "cli"))]
+
 //! # vcv - Fast Visual Studio Environment Setup
 //!
 //! CLI tool for setting up Visual Studio build environment ~50x faster than vcvars64.bat.
@@ -194,11 +196,11 @@ fn main() {
     let args = Args::parse();
 
     // Validate VS year if specified
-    if let Some(year) = args.vs_year {
-        if !matches!(year, 2017 | 2019 | 2022) {
-            eprintln!("Error: Invalid VS year {}. Use 2017, 2019, or 2022", year);
-            std::process::exit(1);
-        }
+    if let Some(year) = args.vs_year
+        && !matches!(year, 2017 | 2019 | 2022)
+    {
+        eprintln!("Error: Invalid VS year {}. Use 2017, 2019, or 2022", year);
+        std::process::exit(1);
     }
 
     // Detect VS

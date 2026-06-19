@@ -1,21 +1,13 @@
-//! Library for detecting Visual Studio / MSVC environment.
+//! Library for detecting Visual Studio / MSVC environment (Windows).
 //!
-//! Use [detect::detect_vs](detect::detect_vs) and [env::build_env](env::build_env) to get
-//! PATH, INCLUDE, LIB, LIBPATH for the current or specified VS installation.
-
-pub mod detect;
-pub mod env;
-pub mod format;
-pub mod registry;
-
-pub use detect::{SdkInfo, VsInfo};
-pub use env::Env;
-pub use format::{fmt_cmd, fmt_json, fmt_ps, fmt_sh};
+//! On non-Windows targets the crate compiles as a stub so workspace builds succeed;
+//! use [detect::detect_vs](detect::detect_vs) and [env::build_env](env::build_env) only on Windows.
 
 use std::fmt;
 
 /// Target or host architecture for the toolchain.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, clap::ValueEnum)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(windows, derive(clap::ValueEnum))]
 pub enum Arch {
     X64,
     X86,
@@ -37,3 +29,19 @@ impl fmt::Display for Arch {
         write!(f, "{}", self.as_str())
     }
 }
+
+#[cfg(windows)]
+pub mod detect;
+#[cfg(windows)]
+pub mod env;
+#[cfg(windows)]
+pub mod format;
+#[cfg(windows)]
+pub mod registry;
+
+#[cfg(windows)]
+pub use detect::{SdkInfo, VsInfo, detect_vs_range};
+#[cfg(windows)]
+pub use env::Env;
+#[cfg(windows)]
+pub use format::{fmt_cmd, fmt_json, fmt_ps, fmt_sh};

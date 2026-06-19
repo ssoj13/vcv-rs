@@ -53,6 +53,19 @@ fn read_txt(path: &PathBuf) -> Option<String> {
         .map(|s| s.trim().to_string())
 }
 
+/// Map vswhere installationVersion major to release year.
+/// Unknown majors return None (treated as "too new" by range filters).
+fn vs_major_to_year(version: &str) -> Option<u16> {
+    let major = version.split('.').next()?;
+    match major {
+        "15" => Some(2017),
+        "16" => Some(2019),
+        "17" => Some(2022),
+        "18" => Some(2026),
+        _ => None,
+    }
+}
+
 /// Build VsInfo from vswhere entry
 fn build_vs_info(vs: VsWhereEntry) -> Option<VsInfo> {
     let install = PathBuf::from(&vs.installation_path);
@@ -77,75 +90,66 @@ fn build_vs_info(vs: VsWhereEntry) -> Option<VsInfo> {
     })
 }
 
-/// Detect VS installation via vswhere
-/// If vs_year is Some, filter by year (2019, 2022, etc.)
-pub fn detect_vs(vs_year: Option<u16>) -> Option<VsInfo> {
-    let vswhere = PathBuf::from(r"C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe");
-    if !vswhere.exists() {
-        return None;
-    }
-
-    let output = Command::new(&vswhere)
-        .args(["-all", "-format", "json", "-utf8"])
-        .output()
-        .ok()?;
-
-    let entries: Vec<VsWhereEntry> = serde_json::from_slice(&output.stdout).ok()?;
-    
-    // Filter by year if specified
-    let filtered: Vec<_> = if let Some(year) = vs_year {
-        let major = match year {
-            2017 => "15.",
-            2019 => "16.",
-            2022 => "17.",
-            _ => return None,
-        };
-        entries.into_iter()
-            .filter(|e| e.installation_version.starts_with(major))
-            .collect()
-    } else {
-        entries
-    };
-
-    // Sort by version descending (latest first)
-    let mut sorted = filtered;
-    sorted.sort_by(|a, b| b.installation_version.cmp(&a.installation_version));
-
-    // Try to build VsInfo from first valid entry
-    sorted.into_iter().find_map(build_vs_info)
-}
-
-/// List all installed VS versions (for error messages)
-pub fn list_vs_versions() -> Vec<(u16, String)> {
-    let vswhere = PathBuf::from(r"C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe");
+/// Collect and sort all vswhere entries descending by version string.
+fn all_vs_entries() -> Vec<VsWhereEntry> {
+    let vswhere = PathBuf::from(
+        r"C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe",
+    );
     if !vswhere.exists() {
         return vec![];
     }
-
-    let output = match Command::new(&vswhere)
+    let Ok(output) = Command::new(&vswhere)
         .args(["-all", "-format", "json", "-utf8"])
         .output()
-    {
-        Ok(o) => o,
-        Err(_) => return vec![],
+    else {
+        return vec![];
     };
+    let mut entries: Vec<VsWhereEntry> =
+        serde_json::from_slice(&output.stdout).unwrap_or_default();
+    entries.sort_by(|a, b| b.installation_version.cmp(&a.installation_version));
+    entries
+}
 
-    let entries: Vec<VsWhereEntry> = match serde_json::from_slice(&output.stdout) {
-        Ok(e) => e,
-        Err(_) => return vec![],
-    };
-
-    entries.into_iter()
-        .filter_map(|e| {
-            let year = if e.installation_version.starts_with("17.") {
-                2022
-            } else if e.installation_version.starts_with("16.") {
-                2019
-            } else if e.installation_version.starts_with("15.") {
-                2017
-            } else {
-                return None;
+/// Find the best (latest) VS installation matching an optional year range.
+///
+/// - `min_year`: require release year >= this value  (`None` = no lower bound)
+/// - `max_year`: require release year <= this value  (`None` = no upper bound)
+///
+/// Entries with an unrecognised major version are skipped when either bound is set.
+///
+/// # Examples
+/// ```ignore
+/// detect_vs_range(None, None)        // latest available
+/// detect_vs_range(None, Some(2022))  // latest that CUDA 13 supports
+/// detect_vs_range(Some(2022), None)  // 2022 or newer
+/// detect_vs_range(Some(2022), Some(2022)) // exactly 2022
+/// ```
+pub fn detect_vs_range(min_year: Option<u16>, max_year: Option<u16>) -> Option<VsInfo> {
+    all_vs_entries()
+        .into_iter()
+        .filter(|e| {
+            if min_year.is_none() && max_year.is_none() {
+                return true;
+            }
+            let Some(year) = vs_major_to_year(&e.installation_version) else {
+                return false; // unknown version excluded when bounds are set
             };
+            min_year.is_none_or(|min| year >= min) && max_year.is_none_or(|max| year <= max)
+        })
+        .find_map(build_vs_info)
+}
+
+/// Find the best VS installation, optionally restricted to an exact release year.
+pub fn detect_vs(vs_year: Option<u16>) -> Option<VsInfo> {
+    detect_vs_range(vs_year, vs_year)
+}
+
+/// List all installed VS versions (for error messages).
+pub fn list_vs_versions() -> Vec<(u16, String)> {
+    all_vs_entries()
+        .into_iter()
+        .filter_map(|e| {
+            let year = vs_major_to_year(&e.installation_version)?;
             Some((year, e.installation_version))
         })
         .collect()
@@ -172,7 +176,7 @@ pub fn detect_sdk() -> Option<SdkInfo> {
         })
         .collect();
 
-    versions.sort_by(|a, b| b.file_name().cmp(&a.file_name()));
+    versions.sort_by_key(|b| std::cmp::Reverse(b.file_name()));
     let version = versions.first()?.file_name().to_string_lossy().to_string();
 
     Some(SdkInfo { path: root, version })
@@ -200,7 +204,7 @@ pub fn detect_ucrt() -> Option<SdkInfo> {
         })
         .collect();
 
-    versions.sort_by(|a, b| b.file_name().cmp(&a.file_name()));
+    versions.sort_by_key(|b| std::cmp::Reverse(b.file_name()));
     let version = versions.first()?.file_name().to_string_lossy().to_string();
 
     Some(SdkInfo { path: root, version })
