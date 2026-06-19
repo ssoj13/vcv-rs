@@ -1,71 +1,92 @@
 # vcv-rs
 
-Fast Visual Studio environment setup. **~50x faster** than `vcvars64.bat`.
+Fast Visual Studio / MSVC environment detection for Windows. The library probes
+`vswhere.exe` and the Windows registry directly to assemble the same `PATH`,
+`INCLUDE`, `LIB`, `LIBPATH` (and related) variables that `vcvars64.bat` sets — in
+a fraction of the time.
 
 | | Time |
 |---|---:|
 | `vcv-rs` | ~20ms |
 | `vcvars64.bat` | ~2000ms |
 
-## Why?
+`vcvars64.bat` is slow because it spawns PowerShell for telemetry, runs 15+ batch
+files sequentially, and re-queries the registry. This crate does the same job with
+a single `vswhere.exe` call, direct registry lookups, and zero telemetry.
 
-Microsoft's `vcvars64.bat` is slow because it:
-- Spawns PowerShell for telemetry
-- Runs 15+ batch files sequentially
-- Queries registry multiple times
-- Searches directories with `dir` commands
+The crate ships as a **library** (consumed by other projects via git-ref) plus an
+optional, Windows-only **`vcv` CLI** behind the `cli` feature. On non-Windows
+targets the library compiles to a stub so workspace builds stay green.
 
-This tool does the same job with:
-- Single `vswhere.exe` call (~20ms)
-- Direct registry lookups
-- Zero telemetry
-- Native compiled binary
+## Consume as a library (git-ref)
 
-## Installation
+This is a standalone canonical crate. Depend on it directly from Git:
 
-```powershell
-# Build from source
-cargo build --release
-copy target\release\vcv-rs.exe C:\bin\
+```toml
+[dependencies]
+vcv-rs = { git = "ssh://git@github.com/ssoj13/vcv-rs.git", branch = "main" }
 ```
 
-## Usage
+The import name is `vcv_rs`. Windows-only detection lives in the `detect`, `env`,
+and `format` modules:
 
-### PowerShell
+```rust
+use vcv_rs::{detect, env, format, Arch};
 
-```powershell
-# Apply environment (auto-detect shell)
-vcv-rs | iex
+// Detect VS (None = newest available); pass Some(year) for 2017/2019/2022.
+if let Some(vs) = detect::detect_vs(None) {
+    let sdk = detect::detect_sdk();
+    let ucrt = detect::detect_ucrt();
 
-# Quiet mode
-vcv-rs -q | iex
+    // Assemble PATH/INCLUDE/LIB/LIBPATH for host x64 -> target x64.
+    let e = env::build_env(&vs, sdk.as_ref(), ucrt.as_ref(), Arch::X64, Arch::X64);
 
-# Add to $PROFILE
-function vcvars { vcv-rs @args | iex }
+    // Emit for a shell: fmt_ps / fmt_cmd / fmt_sh / fmt_json.
+    print!("{}", format::fmt_ps(&e));
+}
 ```
 
-### CMD
+`Arch` (`X64` / `X86` / `Arm64`) is available on all targets; `detect`, `env`,
+`format`, and `registry` are gated to `#[cfg(windows)]`.
+
+## CLI (`vcv`)
+
+The CLI is Windows-only and requires the `cli` feature:
+
+```powershell
+cargo build --release --features cli
+# binary: target\release\vcv.exe
+cargo install --path . --features cli   # installs `vcv`
+```
+
+### Usage
+
+```powershell
+# PowerShell: apply environment to the current session (auto-detect shell)
+vcv | iex
+vcv -q | iex                            # quiet (suppress info on stderr)
+
+# Persist a helper in $PROFILE
+function vcvars { vcv @args | iex }
+```
 
 ```cmd
-vcv-rs -f cmd > vcenv.bat && vcenv.bat
-
-:: Or inline
-for /f "delims=" %i in ('vcv-rs -f cmd') do @%i
+:: CMD
+vcv -f cmd > vcenv.bat && vcenv.bat
+for /f "delims=" %i in ('vcv -f cmd') do @%i
 ```
-
-### Bash / MSYS2
 
 ```bash
-eval $(vcv-rs -f sh)
+# Bash / MSYS2
+eval $(vcv -f sh)
 ```
-
-### JSON (for tools)
 
 ```powershell
-vcv-rs -f json -q
+# JSON for tools
+vcv -f json -q | ConvertFrom-Json
 ```
 
-## Options
+### Options
 
 ```
 -a, --arch      Target architecture: x64 (default), x86, arm64
@@ -73,44 +94,26 @@ vcv-rs -f json -q
 -f, --format    Output format: auto (default), ps, cmd, sh, json
 -v, --vs        VS version year: 2017, 2019, 2022
 -q, --quiet     Suppress info messages
---no-validate   Skip cl.exe validation
+    --no-validate  Skip cl.exe validation
 -h, --help      Print help
 ```
 
-## Examples
+All paths are **prepended**, not replaced: existing `PATH`, `INCLUDE`, etc. stay
+intact and VS tools simply gain priority. Variables set: `PATH`, `INCLUDE`, `LIB`,
+`LIBPATH`, `VCToolsInstallDir`, `WindowsSdkDir`, `UCRTVersion`.
 
-```powershell
-# x64 native (default)
-vcv-rs | iex
+## Build
 
-# x86 target
-vcv-rs -a x86 | iex
+The repo ships a `bootstrap.py` wrapper (release by default, Python 3 stdlib only):
 
-# Cross-compile for ARM64
-vcv-rs -a arm64 | iex
-
-# Use specific VS version
-vcv-rs -v 2019 | iex
-
-# JSON for parsing
-vcv-rs -f json | ConvertFrom-Json
+```sh
+python bootstrap.py b   # build (cargo build --workspace --release)
+python bootstrap.py t   # test  (cargo test --workspace)
+python bootstrap.py c   # check (cargo fmt --check + clippy -D warnings)
 ```
 
-## Output
-
-**Note:** All paths are prepended (added to the beginning), not replaced. Your existing PATH, INCLUDE, etc. remain intact - VS tools just get priority.
-
-Sets these environment variables:
-
-| Variable | Description |
-|----------|-------------|
-| `PATH` | Compiler binaries, SDK tools |
-| `INCLUDE` | Headers (VC++, SDK, UCRT) |
-| `LIB` | Libraries for linking |
-| `LIBPATH` | Assembly references |
-| `VCToolsInstallDir` | VC++ toolset path |
-| `WindowsSdkDir` | Windows SDK path |
-| `UCRTVersion` | Universal CRT version |
+`bootstrap.py b` builds the library; the `vcv` binary additionally needs
+`--features cli` (see above), since it is gated behind `required-features`.
 
 ## License
 
