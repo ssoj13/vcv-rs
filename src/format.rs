@@ -31,7 +31,11 @@ pub fn fmt_cmd(env: &Env) -> String {
         lines.push(format!("set \"PATH={};%PATH%\"", paths.join(";")));
     }
     if !env.include.is_empty() {
-        let paths: Vec<_> = env.include.iter().map(|p| p.display().to_string()).collect();
+        let paths: Vec<_> = env
+            .include
+            .iter()
+            .map(|p| p.display().to_string())
+            .collect();
         lines.push(format!("set \"INCLUDE={};%INCLUDE%\"", paths.join(";")));
     }
     if !env.lib.is_empty() {
@@ -39,7 +43,11 @@ pub fn fmt_cmd(env: &Env) -> String {
         lines.push(format!("set \"LIB={};%LIB%\"", paths.join(";")));
     }
     if !env.libpath.is_empty() {
-        let paths: Vec<_> = env.libpath.iter().map(|p| p.display().to_string()).collect();
+        let paths: Vec<_> = env
+            .libpath
+            .iter()
+            .map(|p| p.display().to_string())
+            .collect();
         lines.push(format!("set \"LIBPATH={};%LIBPATH%\"", paths.join(";")));
     }
 
@@ -59,16 +67,30 @@ pub fn fmt_ps(env: &Env) -> String {
         lines.push(format!("$env:PATH = \"{};$env:PATH\"", paths.join(";")));
     }
     if !env.include.is_empty() {
-        let paths: Vec<_> = env.include.iter().map(|p| p.display().to_string()).collect();
-        lines.push(format!("$env:INCLUDE = \"{};$env:INCLUDE\"", paths.join(";")));
+        let paths: Vec<_> = env
+            .include
+            .iter()
+            .map(|p| p.display().to_string())
+            .collect();
+        lines.push(format!(
+            "$env:INCLUDE = \"{};$env:INCLUDE\"",
+            paths.join(";")
+        ));
     }
     if !env.lib.is_empty() {
         let paths: Vec<_> = env.lib.iter().map(|p| p.display().to_string()).collect();
         lines.push(format!("$env:LIB = \"{};$env:LIB\"", paths.join(";")));
     }
     if !env.libpath.is_empty() {
-        let paths: Vec<_> = env.libpath.iter().map(|p| p.display().to_string()).collect();
-        lines.push(format!("$env:LIBPATH = \"{};$env:LIBPATH\"", paths.join(";")));
+        let paths: Vec<_> = env
+            .libpath
+            .iter()
+            .map(|p| p.display().to_string())
+            .collect();
+        lines.push(format!(
+            "$env:LIBPATH = \"{};$env:LIBPATH\"",
+            paths.join(";")
+        ));
     }
 
     for (k, v) in &env.vars {
@@ -98,7 +120,11 @@ pub fn fmt_sh(env: &Env) -> String {
         lines.push(format!("export PATH=\"{}:$PATH\"", paths.join(":")));
     }
     if !env.include.is_empty() {
-        let paths: Vec<_> = env.include.iter().map(|p| p.display().to_string()).collect();
+        let paths: Vec<_> = env
+            .include
+            .iter()
+            .map(|p| p.display().to_string())
+            .collect();
         lines.push(format!("export INCLUDE=\"{};$INCLUDE\"", paths.join(";")));
     }
     if !env.lib.is_empty() {
@@ -106,7 +132,11 @@ pub fn fmt_sh(env: &Env) -> String {
         lines.push(format!("export LIB=\"{};$LIB\"", paths.join(";")));
     }
     if !env.libpath.is_empty() {
-        let paths: Vec<_> = env.libpath.iter().map(|p| p.display().to_string()).collect();
+        let paths: Vec<_> = env
+            .libpath
+            .iter()
+            .map(|p| p.display().to_string())
+            .collect();
         lines.push(format!("export LIBPATH=\"{};$LIBPATH\"", paths.join(";")));
     }
 
@@ -121,16 +151,32 @@ pub fn fmt_sh(env: &Env) -> String {
 pub fn fmt_json(env: &Env) -> String {
     let mut map = serde_json::Map::new();
 
-    let path_arr: Vec<_> = env.path.iter().map(|p| serde_json::Value::String(p.display().to_string())).collect();
+    let path_arr: Vec<_> = env
+        .path
+        .iter()
+        .map(|p| serde_json::Value::String(p.display().to_string()))
+        .collect();
     map.insert("PATH".into(), serde_json::Value::Array(path_arr));
 
-    let inc_arr: Vec<_> = env.include.iter().map(|p| serde_json::Value::String(p.display().to_string())).collect();
+    let inc_arr: Vec<_> = env
+        .include
+        .iter()
+        .map(|p| serde_json::Value::String(p.display().to_string()))
+        .collect();
     map.insert("INCLUDE".into(), serde_json::Value::Array(inc_arr));
 
-    let lib_arr: Vec<_> = env.lib.iter().map(|p| serde_json::Value::String(p.display().to_string())).collect();
+    let lib_arr: Vec<_> = env
+        .lib
+        .iter()
+        .map(|p| serde_json::Value::String(p.display().to_string()))
+        .collect();
     map.insert("LIB".into(), serde_json::Value::Array(lib_arr));
 
-    let libpath_arr: Vec<_> = env.libpath.iter().map(|p| serde_json::Value::String(p.display().to_string())).collect();
+    let libpath_arr: Vec<_> = env
+        .libpath
+        .iter()
+        .map(|p| serde_json::Value::String(p.display().to_string()))
+        .collect();
     map.insert("LIBPATH".into(), serde_json::Value::Array(libpath_arr));
 
     for (k, v) in &env.vars {

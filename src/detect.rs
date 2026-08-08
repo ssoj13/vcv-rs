@@ -92,9 +92,8 @@ fn build_vs_info(vs: VsWhereEntry) -> Option<VsInfo> {
 
 /// Collect and sort all vswhere entries descending by version string.
 fn all_vs_entries() -> Vec<VsWhereEntry> {
-    let vswhere = PathBuf::from(
-        r"C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe",
-    );
+    let vswhere =
+        PathBuf::from(r"C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe");
     if !vswhere.exists() {
         return vec![];
     }
@@ -104,8 +103,7 @@ fn all_vs_entries() -> Vec<VsWhereEntry> {
     else {
         return vec![];
     };
-    let mut entries: Vec<VsWhereEntry> =
-        serde_json::from_slice(&output.stdout).unwrap_or_default();
+    let mut entries: Vec<VsWhereEntry> = serde_json::from_slice(&output.stdout).unwrap_or_default();
     entries.sort_by(|a, b| b.installation_version.cmp(&a.installation_version));
     entries
 }
@@ -157,7 +155,10 @@ pub fn list_vs_versions() -> Vec<(u16, String)> {
 
 /// Find Windows 10/11 SDK
 pub fn detect_sdk() -> Option<SdkInfo> {
-    let sdk_path = reg_find(r"Microsoft\Microsoft SDKs\Windows\v10.0", "InstallationFolder")?;
+    let sdk_path = reg_find(
+        r"Microsoft\Microsoft SDKs\Windows\v10.0",
+        "InstallationFolder",
+    )?;
     let root = PathBuf::from(sdk_path);
     let inc = root.join("include");
     if !inc.exists() {
@@ -179,7 +180,10 @@ pub fn detect_sdk() -> Option<SdkInfo> {
     versions.sort_by_key(|b| std::cmp::Reverse(b.file_name()));
     let version = versions.first()?.file_name().to_string_lossy().to_string();
 
-    Some(SdkInfo { path: root, version })
+    Some(SdkInfo {
+        path: root,
+        version,
+    })
 }
 
 /// Find Universal CRT
@@ -199,13 +203,15 @@ pub fn detect_ucrt() -> Option<SdkInfo> {
         .filter(|e| {
             let name = e.file_name();
             let name = name.to_string_lossy();
-            name.starts_with("10.")
-                && e.path().join("ucrt").join("x64").join("ucrt.lib").exists()
+            name.starts_with("10.") && e.path().join("ucrt").join("x64").join("ucrt.lib").exists()
         })
         .collect();
 
     versions.sort_by_key(|b| std::cmp::Reverse(b.file_name()));
     let version = versions.first()?.file_name().to_string_lossy().to_string();
 
-    Some(SdkInfo { path: root, version })
+    Some(SdkInfo {
+        path: root,
+        version,
+    })
 }
