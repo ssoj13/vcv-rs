@@ -30,6 +30,7 @@ use clap::{Parser, ValueEnum};
 use std::env as std_env;
 #[cfg(feature = "cuda")]
 use vcv_rs::cuda;
+use vcv_rs::detect::{Prerelease, VsEdition, VsFilter};
 use vcv_rs::{Arch, detect, env, format};
 
 /// How to treat an installed CUDA Toolkit.
@@ -173,9 +174,16 @@ Cross-compile:
   vcv -a arm64 | iex                   # Build for ARM64
   vcv -s x64 -a x86 | iex              # Host x64, target x86
 
-VS version:
-  vcv -v 2019 | iex                    # Use VS 2019 specifically
-  vcv -v 2022 | iex                    # Use VS 2022 specifically
+VS selection:
+  vcv -l                               # List everything detected, mark what would be picked
+  vcv -v 2022 | iex                    # Exactly VS 2022
+  vcv -v 2026 | iex                    # Exactly VS 2026
+  vcv --vs-max 2022 | iex              # Newest up to 2022
+  vcv --vs-min 2022 | iex              # 2022 or newer
+  vcv -e enterprise | iex              # Require the Enterprise edition
+  vcv -e buildtools | iex              # Standalone C++ Build Tools (CI machines)
+  vcv --prerelease allow | iex         # Let Preview installs compete
+  vcv --prerelease only | iex          # Preview channel on purpose
 
 CUDA:
   vcv | iex                            # Toolkit added automatically when installed
@@ -202,8 +210,28 @@ struct Args {
     format: Format,
 
     /// VS version year (2017, 2019, 2022, 2026)
-    #[arg(short = 'v', long = "vs")]
+    #[arg(short = 'v', long = "vs", conflicts_with_all = ["vs_min", "vs_max"])]
     vs_year: Option<u16>,
+
+    /// Oldest acceptable VS year
+    #[arg(long = "vs-min")]
+    vs_min: Option<u16>,
+
+    /// Newest acceptable VS year
+    #[arg(long = "vs-max")]
+    vs_max: Option<u16>,
+
+    /// Require a specific edition (default: any)
+    #[arg(short = 'e', long = "edition", value_enum)]
+    edition: Option<VsEdition>,
+
+    /// Preview / Insiders channel handling
+    #[arg(long = "prerelease", value_enum, default_value = "exclude")]
+    prerelease: Prerelease,
+
+    /// List every detected toolchain and exit
+    #[arg(short = 'l', long = "list")]
+    list: bool,
 
     /// CUDA Toolkit handling
     #[cfg(feature = "cuda")]
@@ -219,19 +247,109 @@ struct Args {
     no_validate: bool,
 }
 
+/// One line describing an installation, in the order a human scans for it.
+fn describe_vs(vs: &vcv_rs::VsInfo) -> String {
+    let year = vs
+        .year
+        .map_or_else(|| "????".to_string(), |y| y.to_string());
+    let channel = if vs.prerelease { "  [prerelease]" } else { "" };
+    format!(
+        "{year}  {:<16} {:<13} VC {:<12} {}{channel}",
+        vs.version,
+        vs.edition.as_str(),
+        vs.tools_ver,
+        vs.install.display()
+    )
+}
+
+/// The active filter in words, for the "nothing matched" message.
+///
+/// Reported as the constraint that failed rather than as "not found": with four independent axes,
+/// "Visual Studio not found" on a machine that has three of them is a message that sends the
+/// operator looking in the wrong place.
+fn describe(filter: &VsFilter) -> String {
+    let years = match (filter.min_year, filter.max_year) {
+        (Some(a), Some(b)) if a == b => format!("year {a}"),
+        (Some(a), Some(b)) => format!("years {a}..{b}"),
+        (Some(a), None) => format!("year >= {a}"),
+        (None, Some(b)) => format!("year <= {b}"),
+        (None, None) => "any year".to_string(),
+    };
+    let edition = filter
+        .edition
+        .map_or_else(|| "any edition".to_string(), |e| e.as_str().to_string());
+    let channel = match filter.prerelease {
+        Prerelease::Exclude => "released only",
+        Prerelease::Allow => "released or prerelease",
+        Prerelease::Only => "prerelease only",
+    };
+    format!("{years}, {edition}, {channel}")
+}
+
+/// Everything detected, with the entry the current flags would select marked.
+///
+/// This exists so "which compiler will I actually get" is answerable without running a build and
+/// reading a compiler banner — the selection is shown next to the alternatives it beat.
+fn print_list(filter: &VsFilter) {
+    let installs = detect::list_vs();
+    let chosen = detect::detect_vs_filtered(filter).map(|vs| vs.install);
+
+    println!("Filter: {}", describe(filter));
+    println!("\nVisual Studio ({} installed):", installs.len());
+    if installs.is_empty() {
+        println!("  (none)");
+    }
+    for vs in &installs {
+        let mark = if chosen.as_ref() == Some(&vs.install) {
+            "->"
+        } else {
+            "  "
+        };
+        println!("{mark} {}", describe_vs(vs));
+    }
+
+    if let Some(sdk) = detect::detect_sdk() {
+        println!("\nWindows SDK: {}  {}", sdk.version, sdk.path.display());
+    }
+    if let Some(ucrt) = detect::detect_ucrt() {
+        println!("UCRT:        {}  {}", ucrt.version, ucrt.path.display());
+    }
+
+    #[cfg(feature = "cuda")]
+    {
+        let toolkits = cuda::list_toolkits();
+        println!("\nCUDA ({} installed):", toolkits.len());
+        if toolkits.is_empty() {
+            println!("  (none)");
+        }
+        for (i, c) in toolkits.iter().enumerate() {
+            let mark = if i == 0 { "->" } else { "  " };
+            let msvc = c.msvc.map_or_else(
+                || "no declared _MSC_VER range".to_string(),
+                |r| format!("_MSC_VER {}..{}", r.min, r.max_exclusive),
+            );
+            println!("{mark} {:<6} {:<28} {}", c.version, msvc, c.root.display());
+        }
+    }
+}
+
 fn main() {
     let args = Args::parse();
 
-    // Validate VS year if specified. 2026 is accepted because detection maps it (VS major 18);
-    // rejecting it here while `detect` resolves it would make the newest compiler unselectable.
-    if let Some(year) = args.vs_year
-        && !matches!(year, 2017 | 2019 | 2022 | 2026)
+    // Validate every year the operator can supply, on all three flags. 2026 is accepted because
+    // detection maps it (VS major 18); rejecting it here while `detect` resolves it would make the
+    // newest compiler unselectable.
+    for year in [args.vs_year, args.vs_min, args.vs_max]
+        .into_iter()
+        .flatten()
     {
-        eprintln!(
-            "Error: Invalid VS year {}. Use 2017, 2019, 2022, or 2026",
-            year
-        );
-        std::process::exit(1);
+        if !matches!(year, 2017 | 2019 | 2022 | 2026) {
+            eprintln!(
+                "Error: Invalid VS year {}. Use 2017, 2019, 2022, or 2026",
+                year
+            );
+            std::process::exit(1);
+        }
     }
 
     // CUDA is resolved BEFORE Visual Studio, because the toolkit constrains which compiler is
@@ -253,32 +371,48 @@ fn main() {
         found
     };
 
-    // An explicit -v is the operator's decision and is never overridden; it is only checked
-    // against the toolkit afterwards, so the warning names the real problem.
+    // Year bounds. The operator's flags win outright; the CUDA-derived range applies only when no
+    // bound was given at all, so `-v`/`--vs-min`/`--vs-max` are never silently narrowed by a
+    // toolkit. A pinned year outside the toolkit's range is warned about below, not overridden.
+    // `mut` is used only by the CUDA narrowing below, which compiles out with the feature.
+    #[cfg_attr(not(feature = "cuda"), allow(unused_mut))]
+    let (mut min_year, mut max_year) = (args.vs_year.or(args.vs_min), args.vs_year.or(args.vs_max));
     #[cfg(feature = "cuda")]
-    let (min_year, max_year) = match (args.vs_year, cuda.as_ref().and_then(|c| c.msvc)) {
-        (Some(y), _) => (Some(y), Some(y)),
-        (None, Some(range)) => (range.min_vs_year(), range.max_vs_year()),
-        (None, None) => (None, None),
+    if min_year.is_none()
+        && max_year.is_none()
+        && let Some(range) = cuda.as_ref().and_then(|c| c.msvc)
+    {
+        (min_year, max_year) = (range.min_vs_year(), range.max_vs_year());
+    }
+
+    let filter = VsFilter {
+        min_year,
+        max_year,
+        edition: args.edition,
+        prerelease: args.prerelease,
     };
-    #[cfg(not(feature = "cuda"))]
-    let (min_year, max_year) = (args.vs_year, args.vs_year);
+
+    if args.list {
+        print_list(&filter);
+        return;
+    }
 
     // Detect VS
-    let vs = match detect::detect_vs_range(min_year, max_year) {
+    let vs = match detect::detect_vs_filtered(&filter) {
         Some(vs) => vs,
         None => {
-            if let Some(year) = args.vs_year {
-                eprintln!("Error: Visual Studio {} not found", year);
-                let versions = detect::list_vs_versions();
-                if !versions.is_empty() {
-                    eprintln!("Available versions:");
-                    for (y, v) in versions {
-                        eprintln!("  {} ({})", y, v);
-                    }
-                }
+            eprintln!(
+                "Error: no Visual Studio installation matches {}",
+                describe(&filter)
+            );
+            let all = detect::list_vs();
+            if all.is_empty() {
+                eprintln!("No Visual Studio C++ toolchain is installed.");
             } else {
-                eprintln!("Error: Visual Studio not found");
+                eprintln!("Installed:");
+                for vs in all {
+                    eprintln!("  {}", describe_vs(&vs));
+                }
             }
             std::process::exit(1);
         }
@@ -289,7 +423,12 @@ fn main() {
 
     // Print info to stderr
     if !args.quiet {
-        eprintln!("# VS {} | VC {}", vs.version, vs.tools_ver);
+        eprintln!(
+            "# VS {} {} | VC {}",
+            vs.version,
+            vs.edition.as_str(),
+            vs.tools_ver
+        );
         if let Some(ref s) = sdk {
             eprintln!("# SDK {}", s.version);
         }

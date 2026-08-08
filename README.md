@@ -92,12 +92,37 @@ vcv -f json -q | ConvertFrom-Json
 -a, --arch      Target architecture: x64 (default), x86, arm64
 -s, --host      Host architecture: x64 (default), x86, arm64
 -f, --format    Output format: auto (default), ps, cmd, sh, json
--v, --vs        VS version year: 2017, 2019, 2022, 2026
+-v, --vs        VS version year: 2017, 2019, 2022, 2026 (exact)
+    --vs-min    Oldest acceptable VS year
+    --vs-max    Newest acceptable VS year
+-e, --edition   community | professional | enterprise | buildtools (default: any)
+    --prerelease  exclude (default), allow, only
 -c, --cuda      CUDA Toolkit: auto (default), on (require), off (ignore)
+-l, --list      List every detected toolchain and exit
 -q, --quiet     Suppress info messages
     --no-validate  Skip cl.exe validation
 -h, --help      Print help
 ```
+
+### Selecting a toolchain
+
+Four independent axes, each with a default that needs no flag: **any year**, **any edition**,
+**released channels only**, newest wins. Set only what you care about.
+
+```sh
+vcv -l                    # what is installed, and which one the current flags pick
+vcv -v 2022               # exactly VS 2022
+vcv --vs-max 2022         # newest up to 2022
+vcv -e buildtools         # standalone C++ Build Tools (the usual CI install)
+vcv --prerelease only     # a Preview channel, on purpose
+```
+
+`-v` is shorthand for setting both bounds and conflicts with `--vs-min`/`--vs-max`. Preview
+installs are excluded by default: they usually carry the highest version number, and an
+unqualified request should not land on a preview channel for that reason alone.
+
+When nothing matches, the error names the constraint that failed and lists what IS installed --
+"Visual Studio not found" on a machine with three of them points the operator at the wrong problem.
 
 All paths are **prepended**, not replaced: existing `PATH`, `INCLUDE`, etc. stay
 intact and VS tools simply gain priority. Variables set: `PATH`, `INCLUDE`, `LIB`,

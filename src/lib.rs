@@ -49,7 +49,9 @@ pub mod registry;
 pub use cuda::{CudaInfo, CudaVersion, MsvcRange, detect_cuda};
 
 #[cfg(windows)]
-pub use detect::{SdkInfo, VsInfo, detect_vs_range};
+pub use detect::{
+    Prerelease, SdkInfo, VsEdition, VsFilter, VsInfo, detect_vs_filtered, detect_vs_range, list_vs,
+};
 #[cfg(windows)]
 pub use env::Env;
 #[cfg(windows)]
