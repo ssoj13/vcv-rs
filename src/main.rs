@@ -15,6 +15,7 @@
 //! ```
 //!
 //! ## Modules
+//! - `cuda` - CUDA Toolkit detection (version and accepted host compilers)
 //! - `detect` - VS/SDK/UCRT detection via vswhere and registry
 //! - `env` - Environment variable assembly
 //! - `format` - Output formatters (ps, cmd, sh, json)
@@ -26,8 +27,22 @@
 //! - `serde_json` - JSON parsing (vswhere output)
 
 use clap::{Parser, ValueEnum};
-use vcv_rs::{detect, env, format, Arch};
 use std::env as std_env;
+#[cfg(feature = "cuda")]
+use vcv_rs::cuda;
+use vcv_rs::{Arch, detect, env, format};
+
+/// How to treat an installed CUDA Toolkit.
+#[cfg(feature = "cuda")]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
+enum CudaMode {
+    /// Add it when one is found, say nothing when there is none.
+    Auto,
+    /// Require one; exit non-zero if absent.
+    On,
+    /// Ignore CUDA entirely.
+    Off,
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
 enum Format {
@@ -62,9 +77,8 @@ where
         return Format::Sh;
     }
     // CMD (PROMPT or CMDCMDLINE is set by cmd.exe sessions)
-    let is_cmd = get("PROMPT").is_some()
-        || get("CMDCMDLINE").is_some()
-        || get("CmdCmdLine").is_some();
+    let is_cmd =
+        get("PROMPT").is_some() || get("CMDCMDLINE").is_some() || get("CmdCmdLine").is_some();
     if is_cmd {
         return Format::Cmd;
     }
@@ -129,7 +143,10 @@ mod tests {
     #[test]
     fn detect_psmodulepath_as_ps() {
         assert_eq!(
-            detect_from(&[("PSModulePath", "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\Modules")]),
+            detect_from(&[(
+                "PSModulePath",
+                "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\Modules"
+            )]),
             Format::Ps
         );
     }
@@ -158,7 +175,12 @@ Cross-compile:
 
 VS version:
   vcv -v 2019 | iex                    # Use VS 2019 specifically
-  vcv -v 2022 | iex                    # Use VS 2022 specifically"#;
+  vcv -v 2022 | iex                    # Use VS 2022 specifically
+
+CUDA:
+  vcv | iex                            # Toolkit added automatically when installed
+  vcv -c on | iex                      # Fail if no CUDA Toolkit is present
+  vcv -c off | iex                     # Plain MSVC environment"#;
 
 #[derive(Parser)]
 #[command(
@@ -179,9 +201,14 @@ struct Args {
     #[arg(short = 'f', long = "format", value_enum, default_value = "auto")]
     format: Format,
 
-    /// VS version year (2017, 2019, 2022)
+    /// VS version year (2017, 2019, 2022, 2026)
     #[arg(short = 'v', long = "vs")]
     vs_year: Option<u16>,
+
+    /// CUDA Toolkit handling
+    #[cfg(feature = "cuda")]
+    #[arg(short = 'c', long = "cuda", value_enum, default_value = "auto")]
+    cuda: CudaMode,
 
     /// Suppress info messages
     #[arg(short = 'q', long = "quiet")]
@@ -195,16 +222,50 @@ struct Args {
 fn main() {
     let args = Args::parse();
 
-    // Validate VS year if specified
+    // Validate VS year if specified. 2026 is accepted because detection maps it (VS major 18);
+    // rejecting it here while `detect` resolves it would make the newest compiler unselectable.
     if let Some(year) = args.vs_year
-        && !matches!(year, 2017 | 2019 | 2022)
+        && !matches!(year, 2017 | 2019 | 2022 | 2026)
     {
-        eprintln!("Error: Invalid VS year {}. Use 2017, 2019, or 2022", year);
+        eprintln!(
+            "Error: Invalid VS year {}. Use 2017, 2019, 2022, or 2026",
+            year
+        );
         std::process::exit(1);
     }
 
+    // CUDA is resolved BEFORE Visual Studio, because the toolkit constrains which compiler is
+    // usable. Building with a VS that nvcc rejects fails inside `host_config.h` with a `#error`,
+    // which reads as a broken CUDA install rather than a compiler one release too new.
+    #[cfg(feature = "cuda")]
+    let cuda = {
+        let found = match args.cuda {
+            CudaMode::Off => None,
+            CudaMode::Auto | CudaMode::On => cuda::detect_cuda(),
+        };
+        if args.cuda == CudaMode::On && found.is_none() {
+            eprintln!(
+                "Error: CUDA Toolkit not found (checked CUDA_PATH/CUDA_HOME/CUDA_ROOT/\
+                 CUDA_TOOLKIT_ROOT_DIR, the standard install directory, and nvcc on PATH)"
+            );
+            std::process::exit(1);
+        }
+        found
+    };
+
+    // An explicit -v is the operator's decision and is never overridden; it is only checked
+    // against the toolkit afterwards, so the warning names the real problem.
+    #[cfg(feature = "cuda")]
+    let (min_year, max_year) = match (args.vs_year, cuda.as_ref().and_then(|c| c.msvc)) {
+        (Some(y), _) => (Some(y), Some(y)),
+        (None, Some(range)) => (range.min_vs_year(), range.max_vs_year()),
+        (None, None) => (None, None),
+    };
+    #[cfg(not(feature = "cuda"))]
+    let (min_year, max_year) = (args.vs_year, args.vs_year);
+
     // Detect VS
-    let vs = match detect::detect_vs(args.vs_year) {
+    let vs = match detect::detect_vs_range(min_year, max_year) {
         Some(vs) => vs,
         None => {
             if let Some(year) = args.vs_year {
@@ -232,16 +293,37 @@ fn main() {
         if let Some(ref s) = sdk {
             eprintln!("# SDK {}", s.version);
         }
+        #[cfg(feature = "cuda")]
+        if let Some(ref c) = cuda {
+            eprintln!("# CUDA {} | {}", c.version, c.root.display());
+        }
     }
 
     // Build environment
-    let env = env::build_env(&vs, sdk.as_ref(), ucrt.as_ref(), args.host, args.arch);
+    #[cfg_attr(not(feature = "cuda"), allow(unused_mut))]
+    let mut env = env::build_env(&vs, sdk.as_ref(), ucrt.as_ref(), args.host, args.arch);
+    #[cfg(feature = "cuda")]
+    if let Some(ref c) = cuda {
+        env::add_cuda(&mut env, c, args.arch);
+    }
 
     // Validate cl.exe exists
     if !args.no_validate {
         let cl_exists = env.path.iter().any(|p| p.join("cl.exe").exists());
         if !cl_exists {
             eprintln!("Warning: cl.exe not found in PATH");
+        }
+        // A pinned -v can land outside what the toolkit accepts. Warn with the numbers rather
+        // than silently emitting an environment whose first .cu file fails with a #error.
+        #[cfg(feature = "cuda")]
+        if let (Some(year), Some(c)) = (args.vs_year, cuda.as_ref())
+            && let Some(range) = c.msvc
+            && !range.max_vs_year().is_some_and(|max| year <= max)
+        {
+            eprintln!(
+                "Warning: VS {} may be rejected by CUDA {} (accepts _MSC_VER {}..{})",
+                year, c.version, range.min, range.max_exclusive
+            );
         }
     }
 

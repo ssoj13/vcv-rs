@@ -13,9 +13,14 @@ documentation = "https://docs.rs/vcv-rs"
 name = "vcv_rs"
 
 [features]
-default = []
+# CUDA is on by default: a machine without a toolkit detects nothing and pays a directory listing,
+# while a machine with one silently building without it is the failure this module exists to stop.
+default = ["cuda"]
 # Windows-only `vcv` CLI (`cargo build -p vcv-rs --features cli`).
 cli = []
+# CUDA Toolkit detection and environment. Drop it with `--no-default-features`; the CLI keeps
+# working and simply stops knowing about CUDA.
+cuda = []
 
 [[bin]]
 name = "vcv"

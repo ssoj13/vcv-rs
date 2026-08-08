@@ -30,6 +30,12 @@ impl fmt::Display for Arch {
     }
 }
 
+/// CUDA Toolkit discovery. Compiled on every platform: the search locations differ per OS but the
+/// facts a caller wants (root, version, accepted host compilers) do not, and a Windows-only module
+/// would have to be re-invented the first time this runs on Linux.
+#[cfg(feature = "cuda")]
+pub mod cuda;
+
 #[cfg(windows)]
 pub mod detect;
 #[cfg(windows)]
@@ -38,6 +44,9 @@ pub mod env;
 pub mod format;
 #[cfg(windows)]
 pub mod registry;
+
+#[cfg(feature = "cuda")]
+pub use cuda::{CudaInfo, CudaVersion, MsvcRange, detect_cuda};
 
 #[cfg(windows)]
 pub use detect::{SdkInfo, VsInfo, detect_vs_range};

@@ -92,7 +92,8 @@ vcv -f json -q | ConvertFrom-Json
 -a, --arch      Target architecture: x64 (default), x86, arm64
 -s, --host      Host architecture: x64 (default), x86, arm64
 -f, --format    Output format: auto (default), ps, cmd, sh, json
--v, --vs        VS version year: 2017, 2019, 2022
+-v, --vs        VS version year: 2017, 2019, 2022, 2026
+-c, --cuda      CUDA Toolkit: auto (default), on (require), off (ignore)
 -q, --quiet     Suppress info messages
     --no-validate  Skip cl.exe validation
 -h, --help      Print help
@@ -101,6 +102,32 @@ vcv -f json -q | ConvertFrom-Json
 All paths are **prepended**, not replaced: existing `PATH`, `INCLUDE`, etc. stay
 intact and VS tools simply gain priority. Variables set: `PATH`, `INCLUDE`, `LIB`,
 `LIBPATH`, `VCToolsInstallDir`, `WindowsSdkDir`, `UCRTVersion`.
+
+## CUDA
+
+When a CUDA Toolkit is installed it is added automatically: `bin` and `bin/x64` on
+`PATH`, `include` on `INCLUDE`, `lib/x64` on `LIB`, and `CUDA_PATH` / `CUDA_HOME` /
+`CUDA_PATH_V<major>_<minor>` all pointing at the same root. Turn it off with `-c off`,
+or drop the code entirely with `--no-default-features` (the `cuda` feature).
+
+No CUDA version is hard-coded, so 12.x, 13.x, 14.x and whatever follows work the same:
+
+| Fact | Read from |
+|---|---|
+| toolkit version | `include/cuda.h` -> `#define CUDA_VERSION` |
+| accepted host compilers | `include/crt/host_config.h` -> the `_MSC_VER` guard |
+| candidate roots | `CUDA_PATH`/`CUDA_HOME`/`CUDA_ROOT`/`CUDA_TOOLKIT_ROOT_DIR`, the install directory, `nvcc` on `PATH` |
+
+Because the toolkit declares its own `_MSC_VER` range, `vcv` picks a Visual Studio that
+CUDA accepts instead of the newest one installed. That matters on a machine carrying a VS
+too new for its toolkit: `nvcc` would otherwise stop at a `#error` in `host_config.h`,
+which reads as a broken CUDA install rather than a compiler one release ahead.
+
+The environment variables searched are exactly the set `cudarc`'s build script reads, so a
+shell configured by `vcv` and a crate built in it can never select different toolkits.
+
+Linux root discovery is implemented (`/usr/local/cuda*`, `/opt/cuda`) but its library layout
+is still marked TODO; macOS has had no toolkit since CUDA 10.2 and is not searched.
 
 ## Build
 
