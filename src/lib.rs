@@ -55,4 +55,6 @@ pub use detect::{
 #[cfg(windows)]
 pub use env::Env;
 #[cfg(windows)]
+pub use env::{VcpkgInfo, add_vcpkg, detect_vcpkg, probe_vcpkg};
+#[cfg(windows)]
 pub use format::{fmt_cmd, fmt_json, fmt_ps, fmt_sh};

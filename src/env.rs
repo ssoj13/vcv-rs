@@ -12,6 +12,7 @@
 //! ## Key Functions
 //! - `build_env()` - Main function that assembles all paths based on host/target arch
 //! - `add_cuda()` - Appends a CUDA Toolkit to an already-built environment (`cuda` feature)
+//! - `add_vcpkg()` - Appends `VCPKG_ROOT` installed libs (openssl etc.) for MSVC link
 //!
 //! ## Dependencies
 //! - `detect` module for VsInfo/SdkInfo structs
@@ -22,7 +23,7 @@ use crate::Arch;
 use crate::cuda::CudaInfo;
 use crate::detect::{SdkInfo, VsInfo};
 use std::collections::BTreeMap;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 /// Assembled environment
 #[derive(Debug, Default)]
@@ -187,4 +188,129 @@ pub fn add_cuda(env: &mut Env, cuda: &CudaInfo, target: Arch) {
     env.vars.insert("CUDA_PATH".into(), root.clone());
     env.vars.insert("CUDA_HOME".into(), root.clone());
     env.vars.insert(cuda.versioned_var(), root);
+}
+
+/// Installed vcpkg tree resolved from `VCPKG_ROOT`.
+///
+/// `triplet` is the first `installed/<triplet>/lib` that exists, so a machine with only
+/// `x64-windows-static-md` still works. `VCPKG_DEFAULT_TRIPLET` wins when that directory exists.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct VcpkgInfo {
+    pub root: PathBuf,
+    pub triplet: String,
+    pub lib: PathBuf,
+    pub include: PathBuf,
+    pub bin: Option<PathBuf>,
+}
+
+/// `VCPKG_ROOT` when it names an existing directory.
+pub fn detect_vcpkg() -> Option<PathBuf> {
+    let root = PathBuf::from(std::env::var_os("VCPKG_ROOT")?);
+    root.is_dir().then_some(root)
+}
+
+fn vcpkg_triplet_candidates(target: Arch) -> Vec<String> {
+    let arch = target.as_str();
+    let mut out = Vec::new();
+    if let Ok(explicit) = std::env::var("VCPKG_DEFAULT_TRIPLET") {
+        let t = explicit.trim();
+        if !t.is_empty() {
+            out.push(t.to_string());
+        }
+    }
+    for suffix in ["windows", "windows-static-md", "windows-static"] {
+        let t = format!("{arch}-{suffix}");
+        if !out.iter().any(|e| e == &t) {
+            out.push(t);
+        }
+    }
+    out
+}
+
+/// Locate `installed/<triplet>/{lib,include}` under a vcpkg root.
+pub fn probe_vcpkg(root: &Path, target: Arch) -> Option<VcpkgInfo> {
+    for triplet in vcpkg_triplet_candidates(target) {
+        let installed = root.join("installed").join(&triplet);
+        let lib = installed.join("lib");
+        if !lib.is_dir() {
+            continue;
+        }
+        let include = installed.join("include");
+        let bin = installed.join("bin");
+        return Some(VcpkgInfo {
+            root: root.to_path_buf(),
+            triplet,
+            lib,
+            include,
+            bin: bin.is_dir().then_some(bin),
+        });
+    }
+    None
+}
+
+/// Append vcpkg installed libs to an environment built by [`build_env`].
+///
+/// Additive: MSVC/CUDA paths stay as they were. `LIB`/`LIBPATH` get `installed/<triplet>/lib`
+/// so `link.exe` can open `libssl.lib` / `libcrypto.lib` without each crate repeating the probe.
+/// `VCPKG_ROOT` is written so `vcpkg` crate build scripts see the same tree.
+pub fn add_vcpkg(env: &mut Env, vcpkg: &VcpkgInfo) {
+    Env::add_if_exists(&mut env.include, &[vcpkg.include.clone()]);
+    env.lib.push(vcpkg.lib.clone());
+    env.libpath.push(vcpkg.lib.clone());
+    if let Some(bin) = &vcpkg.bin {
+        env.path.push(bin.clone());
+    }
+    env.vars
+        .insert("VCPKG_ROOT".into(), vcpkg.root.display().to_string());
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::fs;
+
+    fn write_dir(p: &Path) {
+        fs::create_dir_all(p).expect("mkdir");
+    }
+
+    #[test]
+    fn probe_prefers_default_triplet_when_installed() {
+        let root = std::env::temp_dir().join("vcv_rs_vcpkg_probe_test");
+        let _ = fs::remove_dir_all(&root);
+        write_dir(
+            &root
+                .join("installed")
+                .join("x64-windows-static-md")
+                .join("lib"),
+        );
+        write_dir(&root.join("installed").join("x64-windows").join("lib"));
+        // Safety: test-local; restored below.
+        let prev = std::env::var_os("VCPKG_DEFAULT_TRIPLET");
+        unsafe { std::env::set_var("VCPKG_DEFAULT_TRIPLET", "x64-windows-static-md") };
+        let info = probe_vcpkg(&root, Arch::X64).expect("probe");
+        match prev {
+            Some(v) => unsafe { std::env::set_var("VCPKG_DEFAULT_TRIPLET", v) },
+            None => unsafe { std::env::remove_var("VCPKG_DEFAULT_TRIPLET") },
+        }
+        assert_eq!(info.triplet, "x64-windows-static-md");
+        let _ = fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn probe_falls_back_to_x64_windows() {
+        let root = std::env::temp_dir().join("vcv_rs_vcpkg_fallback_test");
+        let _ = fs::remove_dir_all(&root);
+        write_dir(&root.join("installed").join("x64-windows").join("lib"));
+        write_dir(&root.join("installed").join("x64-windows").join("include"));
+        let prev = std::env::var_os("VCPKG_DEFAULT_TRIPLET");
+        unsafe { std::env::remove_var("VCPKG_DEFAULT_TRIPLET") };
+        let info = probe_vcpkg(&root, Arch::X64).expect("probe");
+        match prev {
+            Some(v) => unsafe { std::env::set_var("VCPKG_DEFAULT_TRIPLET", v) },
+            None => unsafe { std::env::remove_var("VCPKG_DEFAULT_TRIPLET") },
+        }
+        assert_eq!(info.triplet, "x64-windows");
+        assert!(info.bin.is_none());
+        let _ = fs::remove_dir_all(&root);
+    }
 }

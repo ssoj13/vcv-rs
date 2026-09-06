@@ -154,6 +154,17 @@ shell configured by `vcv` and a crate built in it can never select different too
 Linux root discovery is implemented (`/usr/local/cuda*`, `/opt/cuda`) but its library layout
 is still marked TODO; macOS has had no toolkit since CUDA 10.2 and is not searched.
 
+## vcpkg
+
+When `VCPKG_ROOT` points at an existing tree, `installed/<triplet>/lib` is prepended to `LIB`
+and `LIBPATH`, `include` to `INCLUDE`, and `bin` to `PATH`. The triplet is `VCPKG_DEFAULT_TRIPLET`
+if that directory exists, otherwise `x64-windows` / `x86-windows` / `arm64-windows` (then
+`-static-md`, then `-static`). This is how MSVC `link.exe` finds `libssl.lib` from the vcpkg
+`openssl` port without each consumer hard-coding a path.
+
+Callers that consume the library (git-ref) should call `detect_vcpkg` + `probe_vcpkg` +
+`add_vcpkg` the same way the CLI does — `build_env` alone does not look at vcpkg.
+
 ## Build
 
 The repo ships a `bootstrap.py` wrapper (release by default, Python 3 stdlib only):

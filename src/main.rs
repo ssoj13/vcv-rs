@@ -445,6 +445,12 @@ fn main() {
     if let Some(ref c) = cuda {
         env::add_cuda(&mut env, c, args.arch);
     }
+    if let Some(info) = env::detect_vcpkg().and_then(|root| env::probe_vcpkg(&root, args.arch)) {
+        if !args.quiet {
+            eprintln!("# vcpkg {} | {}", info.triplet, info.root.display());
+        }
+        env::add_vcpkg(&mut env, &info);
+    }
 
     // Validate cl.exe exists
     if !args.no_validate {
