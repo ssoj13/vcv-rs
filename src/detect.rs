@@ -259,7 +259,7 @@ fn all_vs_entries() -> Vec<VsWhereEntry> {
 /// # Examples
 /// ```ignore
 /// detect_vs_range(None, None)        // latest available
-/// detect_vs_range(None, Some(2022))  // latest that CUDA 13 supports
+/// detect_vs_range(None, Some(2022))  // newest up to 2022
 /// detect_vs_range(Some(2022), None)  // 2022 or newer
 /// detect_vs_range(Some(2022), Some(2022)) // exactly 2022
 /// ```

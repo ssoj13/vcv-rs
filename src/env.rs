@@ -174,7 +174,7 @@ pub fn build_env(
 ///
 /// **All three root variables are written to the same value on purpose.** `CUDA_PATH` is what
 /// NVIDIA's installer sets, `CUDA_HOME` is what most build scripts read (`cudarc`'s among them),
-/// and the versioned `CUDA_PATH_V13_2` is how tools select between side-by-side toolkits. Leaving
+/// and the versioned `CUDA_PATH_V{major}_{minor}` is how tools select between side-by-side toolkits. Leaving
 /// any of them pointing elsewhere is how a build compiles against one toolkit and links another.
 #[cfg(feature = "cuda")]
 pub fn add_cuda(env: &mut Env, cuda: &CudaInfo, target: Arch) {
@@ -254,7 +254,7 @@ pub fn probe_vcpkg(root: &Path, target: Arch) -> Option<VcpkgInfo> {
 /// so `link.exe` can open `libssl.lib` / `libcrypto.lib` without each crate repeating the probe.
 /// `VCPKG_ROOT` is written so `vcpkg` crate build scripts see the same tree.
 pub fn add_vcpkg(env: &mut Env, vcpkg: &VcpkgInfo) {
-    Env::add_if_exists(&mut env.include, &[vcpkg.include.clone()]);
+    Env::add_if_exists(&mut env.include, std::slice::from_ref(&vcpkg.include));
     env.lib.push(vcpkg.lib.clone());
     env.libpath.push(vcpkg.lib.clone());
     if let Some(bin) = &vcpkg.bin {

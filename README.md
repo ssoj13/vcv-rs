@@ -14,9 +14,10 @@ a fraction of the time.
 files sequentially, and re-queries the registry. This crate does the same job with
 a single `vswhere.exe` call, direct registry lookups, and zero telemetry.
 
-The crate ships as a **library** (consumed by other projects via git-ref) plus an
-optional, Windows-only **`vcv` CLI** behind the `cli` feature. On non-Windows
-targets the library compiles to a stub so workspace builds stay green.
+The crate ships as a **library** (consumed by other projects via git-ref) plus a
+Windows-only **`vcv` CLI**. Both the `cli` and `cuda` features are on by default.
+On non-Windows targets the library compiles to a stub (and `vcv` is a stub binary)
+so workspace builds stay green.
 
 ## Consume as a library (git-ref)
 
@@ -31,15 +32,18 @@ The import name is `vcv_rs`. Windows-only detection lives in the `detect`, `env`
 and `format` modules:
 
 ```rust
-use vcv_rs::{detect, env, format, Arch};
+use vcv_rs::{detect, detect_cuda, env, format, Arch};
 
-// Detect VS (None = newest available); pass Some(year) for 2017/2019/2022.
+// Detect VS (None = newest available); pass Some(year) for 2017/2019/2022/2026.
 if let Some(vs) = detect::detect_vs(None) {
     let sdk = detect::detect_sdk();
     let ucrt = detect::detect_ucrt();
 
     // Assemble PATH/INCLUDE/LIB/LIBPATH for host x64 -> target x64.
-    let e = env::build_env(&vs, sdk.as_ref(), ucrt.as_ref(), Arch::X64, Arch::X64);
+    let mut e = env::build_env(&vs, sdk.as_ref(), ucrt.as_ref(), Arch::X64, Arch::X64);
+    if let Some(cuda) = detect_cuda() {
+        env::add_cuda(&mut e, &cuda, Arch::X64);
+    }
 
     // Emit for a shell: fmt_ps / fmt_cmd / fmt_sh / fmt_json.
     print!("{}", format::fmt_ps(&e));
@@ -51,12 +55,12 @@ if let Some(vs) = detect::detect_vs(None) {
 
 ## CLI (`vcv`)
 
-The CLI is Windows-only and requires the `cli` feature:
+The CLI is Windows-only (a stub binary on other targets). Default features include `cli` and `cuda`:
 
 ```powershell
-cargo build --release --features cli
+cargo build --release
 # binary: target\release\vcv.exe
-cargo install --path . --features cli   # installs `vcv`
+cargo install --path .   # installs `vcv`
 ```
 
 ### Usage
@@ -112,7 +116,9 @@ Four independent axes, each with a default that needs no flag: **any year**, **a
 ```sh
 vcv -l                    # what is installed, and which one the current flags pick
 vcv -v 2022               # exactly VS 2022
+vcv -v 2026               # exactly VS 2026
 vcv --vs-max 2022         # newest up to 2022
+vcv --vs-min 2022         # 2022 or newer
 vcv -e buildtools         # standalone C++ Build Tools (the usual CI install)
 vcv --prerelease only     # a Preview channel, on purpose
 ```
@@ -130,7 +136,7 @@ intact and VS tools simply gain priority. Variables set: `PATH`, `INCLUDE`, `LIB
 
 ## CUDA
 
-When a CUDA Toolkit is installed it is added automatically: `bin` and `bin/x64` on
+When a CUDA Toolkit is installed the `vcv` CLI adds it automatically: `bin` and `bin/x64` on
 `PATH`, `include` on `INCLUDE`, `lib/x64` on `LIB`, and `CUDA_PATH` / `CUDA_HOME` /
 `CUDA_PATH_V<major>_<minor>` all pointing at the same root. Turn it off with `-c off`,
 or drop the code entirely with `--no-default-features` (the `cuda` feature).
@@ -143,10 +149,15 @@ No CUDA version is hard-coded, so 12.x, 13.x, 14.x and whatever follows work the
 | accepted host compilers | `include/crt/host_config.h` -> the `_MSC_VER` guard |
 | candidate roots | `CUDA_PATH`/`CUDA_HOME`/`CUDA_ROOT`/`CUDA_TOOLKIT_ROOT_DIR`, the install directory, `nvcc` on `PATH` |
 
-Because the toolkit declares its own `_MSC_VER` range, `vcv` picks a Visual Studio that
-CUDA accepts instead of the newest one installed. That matters on a machine carrying a VS
-too new for its toolkit: `nvcc` would otherwise stop at a `#error` in `host_config.h`,
-which reads as a broken CUDA install rather than a compiler one release ahead.
+Because the toolkit declares its own `_MSC_VER` range, the CLI (with no year flags) picks a
+Visual Studio that CUDA accepts instead of the newest one installed. That matters on a machine
+carrying a VS too new for its toolkit: `nvcc` would otherwise stop at a `#error` in
+`host_config.h`, which reads as a broken CUDA install rather than a compiler one release ahead.
+`-v` / `--vs-min` / `--vs-max` win outright: they are never silently narrowed by the toolkit.
+A pinned year outside the declared range is a warning, not an override.
+
+`build_env` does not look at CUDA. Library callers should call `detect_cuda` + `add_cuda` the
+same way the CLI does (see the git-ref example above).
 
 The environment variables searched are exactly the set `cudarc`'s build script reads, so a
 shell configured by `vcv` and a crate built in it can never select different toolkits.
@@ -175,8 +186,8 @@ python bootstrap.py t   # test  (cargo test --workspace)
 python bootstrap.py c   # check (cargo fmt --check + clippy -D warnings)
 ```
 
-`bootstrap.py b` builds the library; the `vcv` binary additionally needs
-`--features cli` (see above), since it is gated behind `required-features`.
+`bootstrap.py b` builds the library and the `vcv` binary (both `cli` and `cuda` are default
+features). Drop them with `--no-default-features` if a consumer wants the library only.
 
 ## License
 
