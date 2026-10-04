@@ -67,27 +67,27 @@ cargo install --path .   # installs `vcv`
 
 ```powershell
 # PowerShell: apply environment to the current session (auto-detect shell)
-vcv | iex
-vcv -q | iex                            # quiet (suppress info on stderr)
+vcv-rs | iex
+vcv-rs -q | iex                         # quiet (suppress info on stderr)
 
 # Persist a helper in $PROFILE
-function vcvars { vcv @args | iex }
+function vcvars { vcv-rs @args | iex }
 ```
 
 ```cmd
 :: CMD
-vcv -f cmd > vcenv.bat && vcenv.bat
-for /f "delims=" %i in ('vcv -f cmd') do @%i
+vcv-rs -f cmd > vcenv.bat && vcenv.bat
+for /f "delims=" %i in ('vcv-rs -f cmd') do @%i
 ```
 
 ```bash
 # Bash / MSYS2
-eval $(vcv -f sh)
+eval $(vcv-rs -f sh)
 ```
 
 ```powershell
 # JSON for tools
-vcv -f json -q | ConvertFrom-Json
+vcv-rs -f json -q | ConvertFrom-Json
 ```
 
 ### Options
@@ -114,13 +114,13 @@ Four independent axes, each with a default that needs no flag: **any year**, **a
 **released channels only**, newest wins. Set only what you care about.
 
 ```sh
-vcv -l                    # what is installed, and which one the current flags pick
-vcv -v 2022               # exactly VS 2022
-vcv -v 2026               # exactly VS 2026
-vcv --vs-max 2022         # newest up to 2022
-vcv --vs-min 2022         # 2022 or newer
-vcv -e buildtools         # standalone C++ Build Tools (the usual CI install)
-vcv --prerelease only     # a Preview channel, on purpose
+vcv-rs -l                 # what is installed, and which one the current flags pick
+vcv-rs -v 2022            # exactly VS 2022
+vcv-rs -v 2026            # exactly VS 2026
+vcv-rs --vs-max 2022      # newest up to 2022
+vcv-rs --vs-min 2022      # 2022 or newer
+vcv-rs -e buildtools      # standalone C++ Build Tools (the usual CI install)
+vcv-rs --prerelease only  # a Preview channel, on purpose
 ```
 
 `-v` is shorthand for setting both bounds and conflicts with `--vs-min`/`--vs-max`. Preview

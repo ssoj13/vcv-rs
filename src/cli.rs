@@ -8,8 +8,8 @@
 //!
 //! ## Usage
 //! ```powershell
-//! vcv | iex                 # PowerShell (auto-detect)
-//! vcv -f cmd > env.bat      # CMD
+//! vcv-rs | iex              # PowerShell (auto-detect)
+//! vcv-rs -f cmd > env.bat   # CMD
 //! ```
 //!
 //! ## Modules
@@ -153,40 +153,40 @@ mod tests {
 
 const EXAMPLES: &str = r#"
 PowerShell:
-  vcv | iex                            # Auto-detect, apply to session
-  vcv -f ps | iex                      # Explicit PowerShell format
-  vcv -q | iex                         # Quiet mode (no info)
-  vcv -a x86 | iex                     # x86 target
+  vcv-rs | iex                         # Auto-detect, apply to session
+  vcv-rs -f ps | iex                   # Explicit PowerShell format
+  vcv-rs -q | iex                      # Quiet mode (no info)
+  vcv-rs -a x86 | iex                  # x86 target
 
 CMD:
-  vcv -f cmd > vcenv.bat && vcenv.bat  # Create and run batch
-  for /f "delims=" %i in ('vcv -f cmd') do @%i
+  vcv-rs -f cmd > vcenv.bat && vcenv.bat  # Create and run batch
+  for /f "delims=" %i in ('vcv-rs -f cmd') do @%i
 
 Bash / MSYS2:
-  eval $(vcv -f sh)                    # Apply to current session
+  eval $(vcv-rs -f sh)                    # Apply to current session
 
 JSON (for tools):
-  vcv -f json -q                       # Machine-readable output
+  vcv-rs -f json -q                    # Machine-readable output
 
 Cross-compile:
-  vcv -a arm64 | iex                   # Build for ARM64
-  vcv -s x64 -a x86 | iex              # Host x64, target x86
+  vcv-rs -a arm64 | iex                # Build for ARM64
+  vcv-rs -s x64 -a x86 | iex           # Host x64, target x86
 
 VS selection:
-  vcv -l                               # List everything detected, mark what would be picked
-  vcv -v 2022 | iex                    # Exactly VS 2022
-  vcv -v 2026 | iex                    # Exactly VS 2026
-  vcv --vs-max 2022 | iex              # Newest up to 2022
-  vcv --vs-min 2022 | iex              # 2022 or newer
-  vcv -e enterprise | iex              # Require the Enterprise edition
-  vcv -e buildtools | iex              # Standalone C++ Build Tools (CI machines)
-  vcv --prerelease allow | iex         # Let Preview installs compete
-  vcv --prerelease only | iex          # Preview channel on purpose
+  vcv-rs -l                            # List everything detected, mark what would be picked
+  vcv-rs -v 2022 | iex                 # Exactly VS 2022
+  vcv-rs -v 2026 | iex                 # Exactly VS 2026
+  vcv-rs --vs-max 2022 | iex           # Newest up to 2022
+  vcv-rs --vs-min 2022 | iex           # 2022 or newer
+  vcv-rs -e enterprise | iex           # Require the Enterprise edition
+  vcv-rs -e buildtools | iex           # Standalone C++ Build Tools (CI machines)
+  vcv-rs --prerelease allow | iex      # Let Preview installs compete
+  vcv-rs --prerelease only | iex       # Preview channel on purpose
 
 CUDA:
-  vcv | iex                            # Toolkit added automatically when installed
-  vcv -c on | iex                      # Fail if no CUDA Toolkit is present
-  vcv -c off | iex                     # Plain MSVC environment"#;
+  vcv-rs | iex                         # Toolkit added automatically when installed
+  vcv-rs -c on | iex                   # Fail if no CUDA Toolkit is present
+  vcv-rs -c off | iex                  # Plain MSVC environment"#;
 
 #[derive(Parser)]
 #[command(

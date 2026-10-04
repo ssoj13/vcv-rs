@@ -13,18 +13,18 @@ documentation = "https://docs.rs/vcv-rs"
 name = "vcv_rs"
 
 [features]
-# Both on by default: CUDA detection, and the Windows `vcv` binary. Drop either with
+# Both on by default: CUDA detection, and the Windows `vcv-rs` binary. Drop either with
 # `--no-default-features --features cuda` / `--features cli`, or drop both with
 # `--no-default-features`.
 default = ["cuda", "cli"]
-# Windows `vcv` CLI. Harmless on other targets (stub binary).
+# Windows `vcv-rs` CLI. Harmless on other targets (stub binary).
 cli = []
 # CUDA Toolkit detection and environment. Without it the CLI still works and simply
 # stops knowing about CUDA.
 cuda = []
 
 [[bin]]
-name = "vcv"
+name = "vcv-rs"
 path = "src/main.rs"
 required-features = ["cli"]
 

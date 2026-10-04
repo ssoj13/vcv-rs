@@ -175,7 +175,7 @@ impl CudaInfo {
 /// Environment variables that name a toolkit root, in the order they are honoured.
 ///
 /// This is exactly the set `cudarc`'s build script reads (it prints them as `rerun-if-env-changed`).
-/// Matching it is the point: if vcv-rs preferred a different variable, `vcv | iex` could select one
+/// Matching it is the point: if vcv-rs preferred a different variable, `vcv-rs | iex` could select one
 /// toolkit while the crate compiled against another, and the mismatch would surface as a link
 /// error far from its cause.
 const ROOT_VARS: [&str; 4] = [

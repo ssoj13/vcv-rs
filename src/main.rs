@@ -12,7 +12,7 @@ fn main() {
 
     #[cfg(not(all(windows, feature = "cli")))]
     {
-        eprintln!("vcv is a Windows-only CLI (Visual Studio / MSVC environment).");
+        eprintln!("vcv-rs is a Windows-only CLI (Visual Studio / MSVC environment).");
         std::process::exit(1);
     }
 }
