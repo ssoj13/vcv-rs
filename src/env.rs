@@ -144,7 +144,7 @@ pub fn build_env(
         .insert("VCToolsInstallDir".into(), format!("{}\\", tp.display()));
     env.vars
         .insert("VCToolsVersion".into(), vs.tools_ver.clone());
-    env.vars.insert("VisualStudioVersion".into(), "17.0".into());
+    env.vars.insert("VisualStudioVersion".into(), vs.vs_ver());
     env.vars.insert("Platform".into(), tgt.into());
 
     if let Some(sdk) = sdk {

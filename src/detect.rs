@@ -164,6 +164,15 @@ fn read_txt(path: &PathBuf) -> Option<String> {
         .map(|s| s.trim().to_string())
 }
 
+impl VsInfo {
+    /// `VisualStudioVersion` exactly as `vcvars64.bat` sets it: `<major>.0` of the selected install
+    /// (17.0 = VS 2022, 18.0 = VS 2026). Tools such as the `cmake` crate pick their Visual Studio
+    /// generator from it, so a stale value sends them after a VS that is not installed.
+    pub fn vs_ver(&self) -> String {
+        format!("{}.0", self.version.split('.').next().unwrap_or_default())
+    }
+}
+
 /// Map vswhere installationVersion major to release year.
 /// Unknown majors return None (treated as "too new" by range filters).
 fn vs_major_to_year(version: &str) -> Option<u16> {
@@ -385,6 +394,13 @@ mod vs_tests {
             display_name: String::new(),
             prerelease,
         }
+    }
+
+    #[test]
+    fn visual_studio_version_follows_the_selected_install() {
+        assert_eq!(vs("18.10.12210.168", VsEdition::Community, false).vs_ver(), "18.0");
+        assert_eq!(vs("17.14.37314.3", VsEdition::Enterprise, false).vs_ver(), "17.0");
+        assert_eq!(vs("16.11.5", VsEdition::BuildTools, false).vs_ver(), "16.0");
     }
 
     #[test]
