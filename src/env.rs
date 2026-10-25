@@ -162,7 +162,33 @@ pub fn build_env(
         env.vars.insert("UCRTVersion".into(), ucrt.version.clone());
     }
 
+    // Windows sets these at logon. Agent and service shells drop them. vcpkg finds
+    // vswhere.exe only as `%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe`
+    // and otherwise reports that no complete Visual Studio instance exists.
+    // A value the process already has is left alone.
+    for (key, path) in program_files_if_missing(
+        |k| std::env::var_os(k).is_some(),
+        |p| Path::new(p).is_dir(),
+    ) {
+        env.vars.insert((*key).to_string(), (*path).to_string());
+    }
+
     env
+}
+
+/// Standard program-files locations, restored only when the variable is unset and the directory exists.
+fn program_files_if_missing(
+    is_set: impl Fn(&str) -> bool,
+    dir_exists: impl Fn(&str) -> bool,
+) -> Vec<(&'static str, &'static str)> {
+    [
+        ("ProgramFiles(x86)", "C:/Program Files (x86)"),
+        ("ProgramFiles", "C:/Program Files"),
+        ("ProgramW6432", "C:/Program Files"),
+    ]
+    .into_iter()
+    .filter(|(key, path)| !is_set(key) && dir_exists(path))
+    .collect()
 }
 
 /// Append a CUDA Toolkit to an environment built by [`build_env`].
@@ -312,5 +338,12 @@ mod tests {
         assert_eq!(info.triplet, "x64-windows");
         assert!(info.bin.is_none());
         let _ = fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn program_files_only_when_unset_and_present() {
+        assert!(program_files_if_missing(|_| true, |_| true).is_empty());
+        let x86 = program_files_if_missing(|_| false, |p| p.contains("x86"));
+        assert_eq!(x86, vec![("ProgramFiles(x86)", "C:/Program Files (x86)")]);
     }
 }

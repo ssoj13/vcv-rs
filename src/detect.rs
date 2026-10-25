@@ -227,6 +227,19 @@ fn version_key(version: &str) -> Vec<u32> {
         .collect()
 }
 
+/// `vswhere.exe` is under the 32-bit Program Files tree. `ProgramFiles(x86)` wins when it
+/// already points at that tree; otherwise the standard location. vcpkg joins the same variable
+/// and, when it is unset, reports that no complete Visual Studio instance exists.
+fn vswhere_exe() -> PathBuf {
+    if let Some(root) = std::env::var_os("ProgramFiles(x86)") {
+        let candidate = PathBuf::from(root).join("Microsoft Visual Studio").join("Installer").join("vswhere.exe");
+        if candidate.is_file() {
+            return candidate;
+        }
+    }
+    PathBuf::from("C:/Program Files (x86)/Microsoft Visual Studio/Installer/vswhere.exe")
+}
+
 /// Collect and sort all vswhere entries, newest first.
 ///
 /// `-products *` is required, not cosmetic: without it vswhere omits **Build Tools** installs
@@ -234,8 +247,7 @@ fn version_key(version: &str) -> Vec<u32> {
 /// with no compiler at all. `-prerelease` likewise — preview channels are filtered by
 /// [`VsFilter`] afterwards, on a field, rather than by never asking about them.
 fn all_vs_entries() -> Vec<VsWhereEntry> {
-    let vswhere =
-        PathBuf::from(r"C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe");
+    let vswhere = vswhere_exe();
     if !vswhere.exists() {
         return vec![];
     }

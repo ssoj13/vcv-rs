@@ -132,7 +132,10 @@ When nothing matches, the error names the constraint that failed and lists what 
 
 All paths are **prepended**, not replaced: existing `PATH`, `INCLUDE`, etc. stay
 intact and VS tools simply gain priority. Variables set: `PATH`, `INCLUDE`, `LIB`,
-`LIBPATH`, `VCToolsInstallDir`, `WindowsSdkDir`, `UCRTVersion`.
+`LIBPATH`, `VCToolsInstallDir`, `WindowsSdkDir`, `UCRTVersion`. When a variable is unset
+and the directory exists, `ProgramFiles(x86)`, `ProgramFiles` and `ProgramW6432` are restored.
+vcpkg finds `vswhere.exe` only through `ProgramFiles(x86)`; a shell that dropped it reports a
+missing Visual Studio instance even when the install is complete.
 
 ## CUDA
 
