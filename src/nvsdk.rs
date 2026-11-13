@@ -92,7 +92,7 @@ impl Kind {
             Kind::Cudnn => &[("cudnn_version.h", "CUDNN_MAJOR"), ("cudnn_version.h", "CUDNN_MINOR"), ("cudnn_version.h", "CUDNN_PATCHLEVEL")],
             Kind::VideoCodec => &[("nvEncodeAPI.h", "NVENCAPI_MAJOR_VERSION"), ("nvEncodeAPI.h", "NVENCAPI_MINOR_VERSION")],
             Kind::OpticalFlow => &[("nvOpticalFlowCommon.h", "NV_OF_API_MAJOR_VERSION"), ("nvOpticalFlowCommon.h", "NV_OF_API_MINOR_VERSION")],
-            Kind::Nvapi => &[("nvapi.h", "NVAPI_SDK_VERSION")],
+            Kind::Nvapi => &[("nvapi_lite_common.h", "NVAPI_SDK_VERSION")],
             Kind::Ngx => &[("nvsdk_ngx_defs.h", "NVSDK_NGX_VERSION_API_MACRO")],
             Kind::Nvcomp => &[("nvcomp/version.h", "NVCOMP_VER_MAJOR"), ("nvcomp/version.h", "NVCOMP_VER_MINOR"), ("nvcomp/version.h", "NVCOMP_VER_PATCH")],
         }
@@ -257,7 +257,9 @@ pub fn list_with(kind: Kind, parents: &[PathBuf]) -> Vec<SdkInfo> {
             false
         });
     }
-    searched.sort_by(|a, b| version_key(&b.version).cmp(&version_key(&a.version)));
+    // An install built for the CUDA Toolkit on this machine outranks a newer one built for
+    // another toolkit (cuDNN v9.28 for CUDA 13.5 is unusable next to CUDA 13.3), then newest first.
+    searched.sort_by_key(|s| (std::cmp::Reverse(matches_installed_cuda(s)), std::cmp::Reverse(version_key(&s.version))));
     named.dedup_by(|a, b| a.root == b.root);
     named.extend(searched);
     named
@@ -266,6 +268,19 @@ pub fn list_with(kind: Kind, parents: &[PathBuf]) -> Vec<SdkInfo> {
 /// The preferred installation of `kind`.
 pub fn detect(kind: Kind) -> Option<SdkInfo> {
     list(kind).into_iter().next()
+}
+
+/// For cuDNN's versioned layout: is the chosen `include/<cuda>` folder the installed toolkit's?
+/// Always true for SDKs not tied to a CUDA version.
+fn matches_installed_cuda(s: &SdkInfo) -> bool {
+    if s.kind != Kind::Cudnn {
+        return true;
+    }
+    #[cfg(feature = "cuda")]
+    if let (Some(cuda), Some(folder)) = (crate::cuda::detect_cuda(), s.include_dir.file_name().and_then(|n| n.to_str())) {
+        return folder == format!("{}.{}", cuda.version.major, cuda.version.minor);
+    }
+    false
 }
 
 fn version_key(v: &str) -> Vec<u64> {
@@ -319,7 +334,7 @@ mod tests {
         std::fs::remove_dir_all(&base).ok();
         write(&base.join("Video_Codec_SDK_13.1.15").join("Interface").join("nvEncodeAPI.h"), "#define NVENCAPI_MAJOR_VERSION 13\n#define NVENCAPI_MINOR_VERSION 1\n");
         write(&base.join("nvapi").join("nvapi_interface.h"), "");
-        write(&base.join("nvapi").join("nvapi.h"), "#define NVAPI_SDK_VERSION 62115\n");
+        write(&base.join("nvapi").join("nvapi_lite_common.h"), "#define NVAPI_SDK_VERSION 62115\n");
         write(&base.join("Streamline").join("external").join("ngx-sdk").join("include").join("nvsdk_ngx.h"), "");
         write(
             &base.join("Streamline").join("external").join("ngx-sdk").join("include").join("nvsdk_ngx_defs.h"),
