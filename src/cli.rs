@@ -14,6 +14,7 @@
 //!
 //! ## Modules
 //! - `cuda` - CUDA Toolkit detection (version and accepted host compilers)
+//! - `optix` - OptiX SDK detection (version, function-table ABI, device header)
 //! - `detect` - VS/SDK/UCRT detection via vswhere and registry
 //! - `env` - Environment variable assembly
 //! - `format` - Output formatters (ps, cmd, sh, json)
@@ -29,17 +30,19 @@ use std::env as std_env;
 #[cfg(feature = "cuda")]
 use vcv_rs::cuda;
 use vcv_rs::detect::{Prerelease, VsEdition, VsFilter};
+#[cfg(feature = "optix")]
+use vcv_rs::optix;
 use vcv_rs::{Arch, detect, env, format};
 
-/// How to treat an installed CUDA Toolkit.
-#[cfg(feature = "cuda")]
+/// How to treat an installed SDK (CUDA Toolkit, OptiX SDK).
+#[cfg(any(feature = "cuda", feature = "optix"))]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
-enum CudaMode {
+enum SdkMode {
     /// Add it when one is found, say nothing when there is none.
     Auto,
     /// Require one; exit non-zero if absent.
     On,
-    /// Ignore CUDA entirely.
+    /// Ignore it entirely.
     Off,
 }
 
@@ -186,7 +189,12 @@ VS selection:
 CUDA:
   vcv-rs | iex                         # Toolkit added automatically when installed
   vcv-rs -c on | iex                   # Fail if no CUDA Toolkit is present
-  vcv-rs -c off | iex                  # Plain MSVC environment"#;
+  vcv-rs -c off | iex                  # Plain MSVC environment
+
+OptiX:
+  vcv-rs | iex                         # SDK headers + OPTIX_ROOT added when installed
+  vcv-rs -o on | iex                   # Fail if no OptiX SDK is present
+  vcv-rs -o off | iex                  # Leave OptiX out"#;
 
 #[derive(Parser)]
 #[command(
@@ -234,7 +242,12 @@ struct Args {
     /// CUDA Toolkit handling
     #[cfg(feature = "cuda")]
     #[arg(short = 'c', long = "cuda", value_enum, default_value = "auto")]
-    cuda: CudaMode,
+    cuda: SdkMode,
+
+    /// OptiX SDK handling
+    #[cfg(feature = "optix")]
+    #[arg(short = 'o', long = "optix", value_enum, default_value = "auto")]
+    optix: SdkMode,
 
     /// Suppress info messages
     #[arg(short = 'q', long = "quiet")]
@@ -329,6 +342,20 @@ fn print_list(filter: &VsFilter) {
             println!("{mark} {:<6} {:<28} {}", c.version, msvc, c.root.display());
         }
     }
+
+    #[cfg(feature = "optix")]
+    {
+        let sdks = optix::list_sdks();
+        println!("\nOptiX ({} installed):", sdks.len());
+        if sdks.is_empty() {
+            println!("  (none)");
+        }
+        for (i, o) in sdks.iter().enumerate() {
+            let mark = if i == 0 { "->" } else { "  " };
+            let device = if o.device_impl { "device header" } else { "no device header" };
+            println!("{mark} {:<8} ABI {:<4} {:<17} {}", o.version, o.abi, device, o.root.display());
+        }
+    }
 }
 
 pub fn run() {
@@ -356,13 +383,29 @@ pub fn run() {
     #[cfg(feature = "cuda")]
     let cuda = {
         let found = match args.cuda {
-            CudaMode::Off => None,
-            CudaMode::Auto | CudaMode::On => cuda::detect_cuda(),
+            SdkMode::Off => None,
+            SdkMode::Auto | SdkMode::On => cuda::detect_cuda(),
         };
-        if args.cuda == CudaMode::On && found.is_none() {
+        if args.cuda == SdkMode::On && found.is_none() {
             eprintln!(
                 "Error: CUDA Toolkit not found (checked CUDA_PATH/CUDA_HOME/CUDA_ROOT/\
                  CUDA_TOOLKIT_ROOT_DIR, the standard install directory, and nvcc on PATH)"
+            );
+            std::process::exit(1);
+        }
+        found
+    };
+
+    #[cfg(feature = "optix")]
+    let optix = {
+        let found = match args.optix {
+            SdkMode::Off => None,
+            SdkMode::Auto | SdkMode::On => optix::detect_optix(),
+        };
+        if args.optix == SdkMode::On && found.is_none() {
+            eprintln!(
+                "Error: OptiX SDK not found (checked OPTIX_ROOT/OptiX_INSTALL_DIR/OPTIX_PATH and \
+                 the standard install directory)"
             );
             std::process::exit(1);
         }
@@ -434,14 +477,22 @@ pub fn run() {
         if let Some(ref c) = cuda {
             eprintln!("# CUDA {} | {}", c.version, c.root.display());
         }
+        #[cfg(feature = "optix")]
+        if let Some(ref o) = optix {
+            eprintln!("# OptiX {} (ABI {}) | {}", o.version, o.abi, o.root.display());
+        }
     }
 
     // Build environment
-    #[cfg_attr(not(feature = "cuda"), allow(unused_mut))]
+    #[cfg_attr(not(any(feature = "cuda", feature = "optix")), allow(unused_mut))]
     let mut env = env::build_env(&vs, sdk.as_ref(), ucrt.as_ref(), args.host, args.arch);
     #[cfg(feature = "cuda")]
     if let Some(ref c) = cuda {
         env::add_cuda(&mut env, c, args.arch);
+    }
+    #[cfg(feature = "optix")]
+    if let Some(ref o) = optix {
+        env::add_optix(&mut env, o);
     }
     if let Some(info) = env::detect_vcpkg().and_then(|root| env::probe_vcpkg(&root, args.arch)) {
         if !args.quiet {

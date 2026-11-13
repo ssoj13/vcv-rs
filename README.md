@@ -168,6 +168,23 @@ shell configured by `vcv` and a crate built in it can never select different too
 Linux root discovery is implemented (`/usr/local/cuda*`, `/opt/cuda`) but its library layout
 is still marked TODO; macOS has had no toolkit since CUDA 10.2 and is not searched.
 
+## OptiX
+
+When an OptiX SDK is installed the CLI adds its `include` directory to `INCLUDE` and sets
+`OPTIX_ROOT` and `OptiX_INSTALL_DIR` to the same root (the OptiX runtime ships inside the display
+driver, so nothing goes on `PATH` or `LIB`). `-o on` fails when no SDK is found, `-o off` leaves it
+out; the `optix` feature drops the code.
+
+| Fact | Read from |
+|---|---|
+| SDK version | `include/optix.h` -> `#define OPTIX_VERSION` |
+| function-table ABI | `include/optix_function_table.h` -> `#define OPTIX_ABI_VERSION` |
+| device header present | `include/internal/optix_device_impl.h` exists |
+| candidate roots | `OPTIX_ROOT`/`OptiX_INSTALL_DIR`/`OPTIX_PATH`, `%ProgramData%\NVIDIA Corporation\OptiX SDK *` (Linux: `/opt/*optix*`) |
+
+Library callers use `vcv_rs::optix::detect_optix()` (newest) or `probe(root)` (exact), then
+`env::add_optix`.
+
 ## vcpkg
 
 When `VCPKG_ROOT` points at an existing tree, `installed/<triplet>/lib` is prepended to `LIB`

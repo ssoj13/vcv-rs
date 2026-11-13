@@ -13,15 +13,16 @@ documentation = "https://docs.rs/vcv-rs"
 name = "vcv_rs"
 
 [features]
-# Both on by default: CUDA detection, and the Windows `vcv-rs` binary. Drop either with
-# `--no-default-features --features cuda` / `--features cli`, or drop both with
-# `--no-default-features`.
-default = ["cuda", "cli"]
+# All on by default: CUDA and OptiX detection, and the Windows `vcv-rs` binary. Drop any with
+# `--no-default-features --features ...`, or all with `--no-default-features`.
+default = ["cuda", "optix", "cli"]
 # Windows `vcv-rs` CLI. Harmless on other targets (stub binary).
 cli = []
 # CUDA Toolkit detection and environment. Without it the CLI still works and simply
 # stops knowing about CUDA.
 cuda = []
+# OptiX SDK detection and environment (headers only; the runtime ships in the display driver).
+optix = []
 
 [[bin]]
 name = "vcv-rs"

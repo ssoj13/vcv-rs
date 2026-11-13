@@ -36,6 +36,10 @@ impl fmt::Display for Arch {
 #[cfg(feature = "cuda")]
 pub mod cuda;
 
+/// OptiX SDK discovery: root, version, function-table ABI, device-header presence.
+#[cfg(feature = "optix")]
+pub mod optix;
+
 #[cfg(windows)]
 pub mod detect;
 #[cfg(windows)]
@@ -47,6 +51,8 @@ pub mod registry;
 
 #[cfg(feature = "cuda")]
 pub use cuda::{CudaInfo, CudaVersion, MsvcRange, detect_cuda};
+#[cfg(feature = "optix")]
+pub use optix::{OptixInfo, OptixVersion, detect_optix};
 
 #[cfg(windows)]
 pub use detect::{

@@ -12,6 +12,7 @@
 //! ## Key Functions
 //! - `build_env()` - Main function that assembles all paths based on host/target arch
 //! - `add_cuda()` - Appends a CUDA Toolkit to an already-built environment (`cuda` feature)
+//! - `add_optix()` - Appends an OptiX SDK's headers and root variables (`optix` feature)
 //! - `add_vcpkg()` - Appends `VCPKG_ROOT` installed libs (openssl etc.) for MSVC link
 //!
 //! ## Dependencies
@@ -22,6 +23,8 @@ use crate::Arch;
 #[cfg(feature = "cuda")]
 use crate::cuda::CudaInfo;
 use crate::detect::{SdkInfo, VsInfo};
+#[cfg(feature = "optix")]
+use crate::optix::OptixInfo;
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 
@@ -214,6 +217,19 @@ pub fn add_cuda(env: &mut Env, cuda: &CudaInfo, target: Arch) {
     env.vars.insert("CUDA_PATH".into(), root.clone());
     env.vars.insert("CUDA_HOME".into(), root.clone());
     env.vars.insert(cuda.versioned_var(), root);
+}
+
+/// Append an OptiX SDK to an already-built environment.
+///
+/// Headers only: the include directory goes on `INCLUDE`, nothing on `PATH` or `LIB` (the OptiX
+/// runtime is part of the display driver). `OPTIX_ROOT` and `OptiX_INSTALL_DIR` are both set to the
+/// same root so Rust build scripts and NVIDIA's CMake cannot select different SDKs.
+#[cfg(feature = "optix")]
+pub fn add_optix(env: &mut Env, optix: &OptixInfo) {
+    Env::add_if_exists(&mut env.include, &[optix.include_dir()]);
+    let root = optix.root.display().to_string();
+    env.vars.insert("OPTIX_ROOT".into(), root.clone());
+    env.vars.insert("OptiX_INSTALL_DIR".into(), root);
 }
 
 /// Installed vcpkg tree resolved from `VCPKG_ROOT`.
