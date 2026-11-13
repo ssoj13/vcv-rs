@@ -13,6 +13,7 @@
 //! - `build_env()` - Main function that assembles all paths based on host/target arch
 //! - `add_cuda()` - Appends a CUDA Toolkit to an already-built environment (`cuda` feature)
 //! - `add_optix()` - Appends an OptiX SDK's headers and root variables (`optix` feature)
+//! - `add_nvsdk()` - Appends cuDNN / Video Codec / Optical Flow / NVAPI / NGX / nvCOMP (`nvsdk` feature)
 //! - `add_vcpkg()` - Appends `VCPKG_ROOT` installed libs (openssl etc.) for MSVC link
 //!
 //! ## Dependencies
@@ -23,6 +24,8 @@ use crate::Arch;
 #[cfg(feature = "cuda")]
 use crate::cuda::CudaInfo;
 use crate::detect::{SdkInfo, VsInfo};
+#[cfg(feature = "nvsdk")]
+use crate::nvsdk::SdkInfo as NvSdkInfo;
 #[cfg(feature = "optix")]
 use crate::optix::OptixInfo;
 use std::collections::BTreeMap;
@@ -230,6 +233,23 @@ pub fn add_optix(env: &mut Env, optix: &OptixInfo) {
     let root = optix.root.display().to_string();
     env.vars.insert("OPTIX_ROOT".into(), root.clone());
     env.vars.insert("OptiX_INSTALL_DIR".into(), root);
+}
+
+/// Append a separately shipped NVIDIA SDK (cuDNN, Video Codec, NVAPI, ...): its header directory
+/// on `INCLUDE`, its link libraries on `LIB`, its DLLs on `PATH`, and its first root variable
+/// ([`crate::nvsdk::Kind::root_vars`]) set to the root, so build scripts select the same copy.
+#[cfg(feature = "nvsdk")]
+pub fn add_nvsdk(env: &mut Env, sdk: &NvSdkInfo) {
+    Env::add_if_exists(&mut env.include, std::slice::from_ref(&sdk.include_dir));
+    if let Some(lib) = &sdk.lib_dir {
+        env.lib.push(lib.clone());
+    }
+    if let Some(bin) = &sdk.bin_dir {
+        env.path.push(bin.clone());
+    }
+    if let Some(var) = sdk.kind.root_vars().first() {
+        env.vars.insert((*var).to_string(), sdk.root.display().to_string());
+    }
 }
 
 /// Installed vcpkg tree resolved from `VCPKG_ROOT`.

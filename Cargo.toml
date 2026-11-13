@@ -15,7 +15,7 @@ name = "vcv_rs"
 [features]
 # All on by default: CUDA and OptiX detection, and the Windows `vcv-rs` binary. Drop any with
 # `--no-default-features --features ...`, or all with `--no-default-features`.
-default = ["cuda", "optix", "cli"]
+default = ["cuda", "optix", "nvsdk", "cli"]
 # Windows `vcv-rs` CLI. Harmless on other targets (stub binary).
 cli = []
 # CUDA Toolkit detection and environment. Without it the CLI still works and simply
@@ -23,6 +23,8 @@ cli = []
 cuda = []
 # OptiX SDK detection and environment (headers only; the runtime ships in the display driver).
 optix = []
+# Other NVIDIA SDKs: cuDNN, Video Codec, Optical Flow, NVAPI, NGX (DLSS), nvCOMP.
+nvsdk = []
 
 [[bin]]
 name = "vcv-rs"

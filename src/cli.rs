@@ -30,6 +30,8 @@ use std::env as std_env;
 #[cfg(feature = "cuda")]
 use vcv_rs::cuda;
 use vcv_rs::detect::{Prerelease, VsEdition, VsFilter};
+#[cfg(feature = "nvsdk")]
+use vcv_rs::nvsdk;
 #[cfg(feature = "optix")]
 use vcv_rs::optix;
 use vcv_rs::{Arch, detect, env, format};
@@ -249,6 +251,11 @@ struct Args {
     #[arg(short = 'o', long = "optix", value_enum, default_value = "auto")]
     optix: SdkMode,
 
+    /// Leave out cuDNN / Video Codec / Optical Flow / NVAPI / NGX / nvCOMP
+    #[cfg(feature = "nvsdk")]
+    #[arg(long = "no-nvsdk")]
+    no_nvsdk: bool,
+
     /// Suppress info messages
     #[arg(short = 'q', long = "quiet")]
     quiet: bool,
@@ -356,6 +363,26 @@ fn print_list(filter: &VsFilter) {
             println!("{mark} {:<8} ABI {:<4} {:<17} {}", o.version, o.abi, device, o.root.display());
         }
     }
+
+    #[cfg(feature = "nvsdk")]
+    {
+        println!("\nOther NVIDIA SDKs (searched: env vars, {}):", describe_parents());
+        for kind in nvsdk::Kind::ALL {
+            let found = nvsdk::list(kind);
+            if found.is_empty() {
+                println!("   {:<17} (none)", kind.name());
+            }
+            for (i, s) in found.iter().enumerate() {
+                let mark = if i == 0 { "->" } else { "  " };
+                println!("{mark} {:<17} {:<10} {}", kind.name(), s.version, s.root.display());
+            }
+        }
+    }
+}
+
+#[cfg(feature = "nvsdk")]
+fn describe_parents() -> String {
+    nvsdk::search_parents().iter().map(|p| p.display().to_string()).collect::<Vec<_>>().join(", ")
 }
 
 pub fn run() {
@@ -484,7 +511,7 @@ pub fn run() {
     }
 
     // Build environment
-    #[cfg_attr(not(any(feature = "cuda", feature = "optix")), allow(unused_mut))]
+    #[cfg_attr(not(any(feature = "cuda", feature = "optix", feature = "nvsdk")), allow(unused_mut))]
     let mut env = env::build_env(&vs, sdk.as_ref(), ucrt.as_ref(), args.host, args.arch);
     #[cfg(feature = "cuda")]
     if let Some(ref c) = cuda {
@@ -493,6 +520,17 @@ pub fn run() {
     #[cfg(feature = "optix")]
     if let Some(ref o) = optix {
         env::add_optix(&mut env, o);
+    }
+    #[cfg(feature = "nvsdk")]
+    if !args.no_nvsdk {
+        for kind in nvsdk::Kind::ALL {
+            if let Some(sdk) = nvsdk::detect(kind) {
+                if !args.quiet {
+                    eprintln!("# {} {} | {}", kind.name(), sdk.version, sdk.root.display());
+                }
+                env::add_nvsdk(&mut env, &sdk);
+            }
+        }
     }
     if let Some(info) = env::detect_vcpkg().and_then(|root| env::probe_vcpkg(&root, args.arch)) {
         if !args.quiet {

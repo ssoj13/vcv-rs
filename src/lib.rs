@@ -40,6 +40,10 @@ pub mod cuda;
 #[cfg(feature = "optix")]
 pub mod optix;
 
+/// cuDNN, Video Codec, Optical Flow, NVAPI, NGX (DLSS) and nvCOMP SDK discovery.
+#[cfg(feature = "nvsdk")]
+pub mod nvsdk;
+
 #[cfg(windows)]
 pub mod detect;
 #[cfg(windows)]
