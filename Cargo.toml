@@ -1,6 +1,6 @@
 [package]
 name = "vcv-rs"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2024"
 description = "Toolchain and NVIDIA SDK environments for Windows and Linux"
 license = "MIT"
