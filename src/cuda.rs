@@ -134,7 +134,7 @@ pub struct CudaInfo {
     /// Toolkit root — the directory holding `bin/`, `include/` and `lib/`.
     pub root: PathBuf,
     pub version: CudaVersion,
-    /// Absolute path to the `nvcc` driver; its existence is part of what makes `root` a toolkit.
+    /// Path to the `nvcc` driver (`<root>/bin/nvcc[.exe]`); its existence is part of what makes `root` a toolkit.
     pub nvcc: PathBuf,
     /// Accepted host-compiler range. `None` when `host_config.h` carries no `_MSC_VER` guard,
     /// which is the normal case for a non-Windows toolkit.

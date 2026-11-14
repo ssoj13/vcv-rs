@@ -528,6 +528,31 @@ fn required_shell(name: &str) -> PathBuf {
     std::fs::canonicalize(path).expect("resolve absolute test shell before changing child PATH")
 }
 
+fn ps_inheritance(old: Option<&str>) -> String {
+    [
+        "PATH",
+        "INCLUDE",
+        "LIB",
+        "LIBPATH",
+        "CPATH",
+        "LIBRARY_PATH",
+        "LD_LIBRARY_PATH",
+    ]
+    .into_iter()
+    .map(|key| match old {
+        Some(value) => format!(
+            "[Environment]::SetEnvironmentVariable({}, {}, 'Process')\n",
+            ps_quote(key),
+            ps_quote(value)
+        ),
+        None => format!(
+            "[Environment]::SetEnvironmentVariable({}, $null, 'Process')\n",
+            ps_quote(key)
+        ),
+    })
+    .collect()
+}
+
 fn powershell_roundtrip(powershell: &Path) {
     let env = fixture();
     let exe = std::env::current_exe().expect("test executable");
@@ -570,6 +595,7 @@ fn powershell_roundtrip(powershell: &Path) {
         if std::env::var_os("VCV_TEST_QUOTE_MUTANT").is_some() {
             script = script.replace("''", "'");
         }
+        script = format!("{}{script}", ps_inheritance(old));
         script.push_str(&format!(
             "\n& {} --ignored --exact dump_environment --nocapture\nexit $LASTEXITCODE\n",
             ps_quote(exe.to_str().expect("unicode executable"))
@@ -613,6 +639,63 @@ fn powershell_shell_roundtrip() {
     let powershell =
         PathBuf::from(system_root).join(r"System32\WindowsPowerShell\v1.0\powershell.exe");
     powershell_roundtrip(&powershell);
+}
+
+#[cfg(windows)]
+#[test]
+fn powershell_preflight_prevents_partial_mutation_when_inherited_list_overflows() {
+    let system_root = std::env::var_os("SystemRoot").expect("Windows system root");
+    let powershell =
+        PathBuf::from(system_root).join(r"System32\WindowsPowerShell\v1.0\powershell.exe");
+    let exe = std::env::current_exe().expect("test executable");
+    let scratch = Scratch::new();
+    let output = scratch.0.join("dump.json");
+    let mut env = Env::new(Arch::X64);
+    env.path.push(PathBuf::from(r"C:\NewPath"));
+    env.include.push(PathBuf::from(r"C:\NewInclude"));
+    env.vars
+        .insert("VCV_AFTER".into(), OsString::from("should_not_be_set"));
+
+    let apply_script = fmt_ps(&env).expect("format PowerShell");
+    let wrapper = format!(
+        "$origPath = 'C:\\BeforeApply'\n\
+         [Environment]::SetEnvironmentVariable('PATH', $origPath, 'Process')\n\
+         [Environment]::SetEnvironmentVariable('INCLUDE', ('I' * 32760), 'Process')\n\
+         [Environment]::SetEnvironmentVariable('VCV_AFTER', $null, 'Process')\n\
+         $threw = $false\n\
+         try {{\n{apply_script}\n}} catch {{ $threw = $true }}\n\
+         if (-not $threw) {{ exit 2 }}\n\
+         & {} --ignored --exact dump_environment --nocapture\n\
+         exit $LASTEXITCODE\n",
+        ps_quote(exe.to_str().expect("unicode executable"))
+    );
+    let mut command = Command::new(&powershell);
+    command
+        .args([
+            "-NoProfile",
+            "-NonInteractive",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-Command",
+        ])
+        .arg(wrapper)
+        .env("VCV_DUMP_PATH", &output);
+    let result = command.output().expect("run PowerShell preflight check");
+    assert!(
+        result.status.success(),
+        "PowerShell preflight wrapper failed (code {:?}): {}",
+        result.status.code(),
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let values = read_dump(&output);
+    assert_eq!(
+        values["PATH"], r"C:\BeforeApply",
+        "earlier PATH assignment must not take effect when a later list overflows"
+    );
+    assert!(
+        !values.contains_key("VCV_AFTER"),
+        "scalar variables must not be applied when list preflight fails"
+    );
 }
 
 #[cfg(any(windows, target_os = "linux"))]

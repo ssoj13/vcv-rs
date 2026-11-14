@@ -1049,7 +1049,11 @@ mod tests {
                 .expect("set VCV_TEST_ELF_ARCHIVE to an actual x64 ELF SDK archive file"),
         );
         for (variable, path, format) in [
-            ("VCV_TEST_COFF_ARCHIVE", coff_path, object::BinaryFormat::Coff),
+            (
+                "VCV_TEST_COFF_ARCHIVE",
+                coff_path,
+                object::BinaryFormat::Coff,
+            ),
             ("VCV_TEST_ELF_ARCHIVE", elf_path, object::BinaryFormat::Elf),
         ] {
             assert!(

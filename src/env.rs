@@ -861,13 +861,13 @@ mod tests {
         ));
         std::fs::create_dir(&root).expect("create unique fixture");
         let fixture = Fixture(root);
-        let lib = fixture.0.join(if cfg!(windows) {
-            "lib/x64"
+        let lib = if cfg!(windows) {
+            fixture.0.join("lib").join("x64")
         } else {
-            "targets/x86_64-linux/lib"
-        });
+            fixture.0.join("targets/x86_64-linux/lib")
+        };
         let runtime = if cfg!(windows) {
-            fixture.0.join("bin/x64")
+            fixture.0.join("bin").join("x64")
         } else {
             lib.clone()
         };
@@ -904,9 +904,9 @@ mod tests {
         assert_eq!(sdk.lib_dir(Arch::X64), Some(lib.clone()));
         assert_eq!(sdk.runtime_dir(Arch::X64), None);
         add_cuda(&mut env, &sdk).expect("static-only toolkit");
-        assert_eq!(env.lib, [lib.clone()]);
+        assert_eq!(env.lib, std::slice::from_ref(&lib));
         assert!(env.runtime.is_empty());
-        assert_eq!(env.path, [tools.clone()]);
+        assert_eq!(env.path, std::slice::from_ref(&tools));
         let output: serde_json::Value =
             serde_json::from_str(&crate::format::fmt_json(&env).expect("static toolkit output"))
                 .expect("parse static toolkit output");
@@ -938,7 +938,7 @@ mod tests {
         assert_eq!(sdk.runtime_dir(Arch::X64), None);
         add_cuda(&mut env, &sdk).expect("ignore wrong-architecture runtime");
         assert!(env.runtime.is_empty());
-        assert_eq!(env.path, [tools.clone()]);
+        assert_eq!(env.path, std::slice::from_ref(&tools));
         let output: serde_json::Value =
             serde_json::from_str(&crate::format::fmt_json(&env).expect("foreign runtime output"))
                 .expect("parse foreign runtime output");
@@ -956,9 +956,9 @@ mod tests {
         assert_eq!(sdk.runtime_dir(Arch::X64), Some(runtime.clone()));
         add_cuda(&mut env, &sdk).expect("matching runtime");
         add_cuda(&mut env, &sdk).expect("duplicate runtime");
-        assert_eq!(env.runtime, [runtime.clone()]);
+        assert_eq!(env.runtime, std::slice::from_ref(&runtime));
         assert_eq!(env.lib, [lib]);
-        assert_eq!(env.path, [tools.clone()]);
+        assert_eq!(env.path, std::slice::from_ref(&tools));
         let output: serde_json::Value =
             serde_json::from_str(&crate::format::fmt_json(&env).expect("verified runtime output"))
                 .expect("parse verified runtime output");

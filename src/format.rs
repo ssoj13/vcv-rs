@@ -303,22 +303,62 @@ fn ps_quote(value: &str) -> String {
     quoted
 }
 
+/// Maximum UTF-16 code units accepted by Windows PowerShell 5.1 / .NET Framework
+/// `Environment.SetEnvironmentVariable` for both variable names and values.
+const WIN_PS_MAX_UTF16: usize = 32_766;
+
+fn check_win_ps_utf16(key: &str, value: &str, reason: &'static str) -> Result<(), FormatError> {
+    if value.encode_utf16().count() > WIN_PS_MAX_UTF16 {
+        return Err(invalid(key, reason));
+    }
+    Ok(())
+}
+
 /// Format Process-scope environment assignments for PowerShell.
 /// Empty scalar values are rejected so output remains lossless on Windows PowerShell 5.1.
 pub fn fmt_ps(env: &Env) -> Result<String, FormatError> {
-    let native = native_env(env, native_platform()?)?;
-    let mut lines = Vec::new();
-    for (key, values) in native.lists {
+    fmt_ps_for(env, native_platform()?)
+}
+
+fn fmt_ps_for(env: &Env, windows: bool) -> Result<String, FormatError> {
+    let native = native_env(env, windows)?;
+    let mut preflight = Vec::new();
+    let mut setters = Vec::new();
+    for (idx, (key, values)) in native.lists.into_iter().enumerate() {
         if values.is_empty() {
             continue;
         }
-        let key = ps_quote(key);
-        let prefix = ps_quote(&values.join(&native.separator.to_string()));
+        let joined = values.join(&native.separator.to_string());
+        if windows {
+            check_win_ps_utf16(
+                key,
+                &joined,
+                "Windows PowerShell 5.1 limits environment values to 32766 UTF-16 code units",
+            )?;
+        }
+        let q_key = ps_quote(key);
+        let prefix = ps_quote(&joined);
         let separator = ps_quote(&native.separator.to_string());
-        let get = format!("[Environment]::GetEnvironmentVariable({key}, 'Process')");
-        lines.push(format!(
-            "[Environment]::SetEnvironmentVariable({key}, ({prefix} + $(if ([string]::IsNullOrEmpty({get})) {{ '' }} else {{ {separator} + {get} }})), 'Process')"
-        ));
+        let get = format!("[Environment]::GetEnvironmentVariable({q_key}, 'Process')");
+        if windows {
+            let var = format!("$vcv_{idx}");
+            let err_msg = ps_quote(&format!(
+                "{key} exceeds Windows PowerShell 32766 UTF-16 code unit limit"
+            ));
+            preflight.push(format!(
+                "{var} = ({prefix} + $(if ([string]::IsNullOrEmpty({get})) {{ [string]::Empty }} else {{ {separator} + {get} }}))"
+            ));
+            preflight.push(format!(
+                "if ({var}.Length -gt {WIN_PS_MAX_UTF16}) {{ throw [System.ArgumentException]::new({err_msg}) }}"
+            ));
+            setters.push(format!(
+                "[Environment]::SetEnvironmentVariable({q_key}, {var}, 'Process')"
+            ));
+        } else {
+            setters.push(format!(
+                "[Environment]::SetEnvironmentVariable({q_key}, ({prefix} + $(if ([string]::IsNullOrEmpty({get})) {{ [string]::Empty }} else {{ {separator} + {get} }})), 'Process')"
+            ));
+        }
     }
     for (key, value) in native.vars {
         if value.is_empty() {
@@ -327,13 +367,31 @@ pub fn fmt_ps(env: &Env) -> Result<String, FormatError> {
                 "Windows PowerShell 5.1 deletes empty scalar variables",
             ));
         }
-        lines.push(format!(
+        if windows {
+            check_win_ps_utf16(
+                &key,
+                &key,
+                "Windows PowerShell 5.1 limits environment names to 32766 UTF-16 code units",
+            )?;
+            check_win_ps_utf16(
+                &key,
+                &value,
+                "Windows PowerShell 5.1 limits environment values to 32766 UTF-16 code units",
+            )?;
+        }
+        setters.push(format!(
             "[Environment]::SetEnvironmentVariable({}, {}, 'Process')",
             ps_quote(&key),
             ps_quote(&value)
         ));
     }
-    Ok(lines.join("\n"))
+    if preflight.is_empty() {
+        Ok(setters.join("\n"))
+    } else {
+        let mut body = preflight;
+        body.extend(setters);
+        Ok(format!("& {{\n    {}\n}}", body.join("\n    ")))
+    }
 }
 
 /// Convert an absolute Windows drive path to its MSYS/Git Bash spelling.
@@ -585,7 +643,11 @@ mod tests {
     #[cfg(windows)]
     #[test]
     fn windows_unicode_key_aliases_are_rejected_without_merging_distinct_names() {
-        assert!(same_key("\u{131}", "I", true).expect("Windows ordinal dotless-i comparison"));
+        assert!(
+            !same_key("\u{131}", "I", true)
+                .expect("Windows ordinal comparison does not fold dotless-i to ASCII I")
+        );
+        assert!(same_key("Ж", "ж", true).expect("Windows ordinal Cyrillic case fold"));
         assert!(
             !same_key("ß", "SS", true).expect("Windows ordinal comparison does not expand sharp-s")
         );
@@ -680,6 +742,62 @@ mod tests {
         assert!(matches!(
             native_env(&env, cfg!(windows)),
             Err(FormatError::NonUnicode(_))
+        ));
+    }
+
+    #[test]
+    fn windows_powershell_enforces_utf16_name_value_and_list_limits() {
+        let mut env = Env::new(Arch::X64);
+        env.vars.insert(
+            "VCV_MAX".into(),
+            OsString::from("x".repeat(WIN_PS_MAX_UTF16)),
+        );
+        assert!(fmt_ps_for(&env, true).is_ok());
+
+        env.vars.insert(
+            "VCV_MAX".into(),
+            OsString::from("x".repeat(WIN_PS_MAX_UTF16 + 1)),
+        );
+        assert!(matches!(
+            fmt_ps_for(&env, true),
+            Err(FormatError::InvalidValue { key, .. }) if key == "VCV_MAX"
+        ));
+        // Linux PowerShell Core has no 32766 UTF-16 SetEnvironmentVariable limit.
+        assert!(fmt_ps_for(&env, false).is_ok());
+
+        // Astral characters occupy 2 UTF-16 code units each: 16383 * 2 == 32766, +1 BMP overflows.
+        env.vars.clear();
+        let astral_exact = "🦀".repeat(WIN_PS_MAX_UTF16 / 2);
+        env.vars
+            .insert("VCV_ASTRAL".into(), OsString::from(astral_exact.clone()));
+        assert!(fmt_ps_for(&env, true).is_ok());
+        env.vars.insert(
+            "VCV_ASTRAL".into(),
+            OsString::from(format!("{astral_exact}a")),
+        );
+        assert!(fmt_ps_for(&env, true).is_err());
+
+        // Key length boundary.
+        env.vars.clear();
+        env.vars
+            .insert("K".repeat(WIN_PS_MAX_UTF16), OsString::from("ok"));
+        assert!(fmt_ps_for(&env, true).is_ok());
+        env.vars.clear();
+        env.vars
+            .insert("K".repeat(WIN_PS_MAX_UTF16 + 1), OsString::from("no"));
+        assert!(fmt_ps_for(&env, true).is_err());
+
+        // Joined list length boundary.
+        env.vars.clear();
+        env.path.push(PathBuf::from(format!(
+            r"C:\{}",
+            "p".repeat(WIN_PS_MAX_UTF16 - 3)
+        )));
+        assert!(fmt_ps_for(&env, true).is_ok());
+        env.path.push(PathBuf::from(r"C:\extra"));
+        assert!(matches!(
+            fmt_ps_for(&env, true),
+            Err(FormatError::InvalidValue { key, .. }) if key == "PATH"
         ));
     }
 }
