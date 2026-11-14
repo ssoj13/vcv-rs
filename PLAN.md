@@ -1,5 +1,4 @@
-kind:inline
-text:# vcv-rs — Consolidated Plan & Architecture
+# vcv-rs — Consolidated Plan & Architecture
 
 Updated: 2026-11-14 | Baseline commit: `31c5428` (`main`)
 
