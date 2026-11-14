@@ -1,0 +1,211 @@
+{
+  "date": "2026-11-13",
+  "base": "6eb28c0",
+  "state": "formatted-source-only-unverified",
+  "files": [
+    {
+      "path": "src/cuda.rs",
+      "lines": 1117,
+      "hash": {
+        "algorithm": "sha256",
+        "hash": "6545e64abdbb00cc4079305a4b1e9f44abd07e24eb91e7620b06354ebb68310b",
+        "length": null,
+        "offset": 0,
+        "path": "C:/projects/projects.rust.cg/cglibs/vcv-rs/src/cuda.rs",
+        "size": 42630
+      }
+    },
+    {
+      "path": "src/optix.rs",
+      "lines": 498,
+      "hash": {
+        "algorithm": "sha256",
+        "hash": "0c25bfb1179d389cbd0b934203381bc09eca90d72d273b4a4eca2b58446c7806",
+        "length": null,
+        "offset": 0,
+        "path": "C:/projects/projects.rust.cg/cglibs/vcv-rs/src/optix.rs",
+        "size": 17220
+      }
+    },
+    {
+      "path": "src/nvsdk.rs",
+      "lines": 1321,
+      "hash": {
+        "algorithm": "sha256",
+        "hash": "0c0ccb1bf8d2d3f07d500bd3240715ba5a1fc75225f8c616931df9442c195979",
+        "length": null,
+        "offset": 0,
+        "path": "C:/projects/projects.rust.cg/cglibs/vcv-rs/src/nvsdk.rs",
+        "size": 44693
+      }
+    },
+    {
+      "path": "src/discovery.rs",
+      "lines": 223,
+      "hash": {
+        "algorithm": "sha256",
+        "hash": "f88c7b6cf162e0568e0ccf3b38fee23af47585fef6c3828e97ae3d9341b065c6",
+        "length": null,
+        "offset": 0,
+        "path": "C:/projects/projects.rust.cg/cglibs/vcv-rs/src/discovery.rs",
+        "size": 8448
+      }
+    },
+    {
+      "path": "src/env.rs",
+      "lines": 1000,
+      "hash": {
+        "algorithm": "sha256",
+        "hash": "faba6a391f2d74f4806f16076aaa78f51d642777ed631e01b92de0049ee50db3",
+        "length": null,
+        "offset": 0,
+        "path": "C:/projects/projects.rust.cg/cglibs/vcv-rs/src/env.rs",
+        "size": 33490
+      }
+    },
+    {
+      "path": "src/format.rs",
+      "lines": 685,
+      "hash": {
+        "algorithm": "sha256",
+        "hash": "60b9a806211e74d55e068e859459678d72023c34dc67e3b38d1565fe4238af38",
+        "length": null,
+        "offset": 0,
+        "path": "C:/projects/projects.rust.cg/cglibs/vcv-rs/src/format.rs",
+        "size": 23565
+      }
+    },
+    {
+      "path": "tests/format_roundtrip.rs",
+      "lines": 696,
+      "hash": {
+        "algorithm": "sha256",
+        "hash": "67c64339eadc62f1392a5417a09ee640374cbdf4a39421711e70bf662dd998ec",
+        "length": null,
+        "offset": 0,
+        "path": "C:/projects/projects.rust.cg/cglibs/vcv-rs/tests/format_roundtrip.rs",
+        "size": 23100
+      }
+    },
+    {
+      "path": "src/cli.rs",
+      "lines": 61,
+      "hash": {
+        "algorithm": "sha256",
+        "hash": "9fdf291c753f64a07e00878fc576a33a70ff0ec68a27188f730b600e81af89ea",
+        "length": null,
+        "offset": 0,
+        "path": "C:/projects/projects.rust.cg/cglibs/vcv-rs/src/cli.rs",
+        "size": 1994
+      }
+    },
+    {
+      "path": "src/cli/args.rs",
+      "lines": 202,
+      "hash": {
+        "algorithm": "sha256",
+        "hash": "aa3ae4dd86adc214bde55c8fa45fbecf9890033a5b24da5ea71482712c585d7c",
+        "length": null,
+        "offset": 0,
+        "path": "C:/projects/projects.rust.cg/cglibs/vcv-rs/src/cli/args.rs",
+        "size": 5994
+      }
+    },
+    {
+      "path": "src/cli/platform.rs",
+      "lines": 314,
+      "hash": {
+        "algorithm": "sha256",
+        "hash": "2e09751c6489cb790f443ca94b61046693b48e691655feeb20864a4433cc8cce",
+        "length": null,
+        "offset": 0,
+        "path": "C:/projects/projects.rust.cg/cglibs/vcv-rs/src/cli/platform.rs",
+        "size": 9711
+      }
+    },
+    {
+      "path": "src/cli/sdks.rs",
+      "lines": 350,
+      "hash": {
+        "algorithm": "sha256",
+        "hash": "13bbc8b273e9325c17ba1f199920f826f4f19974a006c29cd0d81072756f0a76",
+        "length": null,
+        "offset": 0,
+        "path": "C:/projects/projects.rust.cg/cglibs/vcv-rs/src/cli/sdks.rs",
+        "size": 11112
+      }
+    },
+    {
+      "path": "src/lib.rs",
+      "lines": 105,
+      "hash": {
+        "algorithm": "sha256",
+        "hash": "044556e4a26ffa3920959b9d9f3eea7b613dd8795d83ea3acaa95a9726afe68c",
+        "length": null,
+        "offset": 0,
+        "path": "C:/projects/projects.rust.cg/cglibs/vcv-rs/src/lib.rs",
+        "size": 3159
+      }
+    },
+    {
+      "path": "src/main.rs",
+      "lines": 7,
+      "hash": {
+        "algorithm": "sha256",
+        "hash": "d1e418ce9e68aec62c92cc7f92eddbce5c78fc5da8976781e42176fbb6175b19",
+        "length": null,
+        "offset": 0,
+        "path": "C:/projects/projects.rust.cg/cglibs/vcv-rs/src/main.rs",
+        "size": 125
+      }
+    },
+    {
+      "path": "src/detect.rs",
+      "lines": 528,
+      "hash": {
+        "algorithm": "sha256",
+        "hash": "ac9833f459b8ff2624394ca737989e254b1515b473c35606a0b02c253b433609",
+        "length": null,
+        "offset": 0,
+        "path": "C:/projects/projects.rust.cg/cglibs/vcv-rs/src/detect.rs",
+        "size": 18529
+      }
+    },
+    {
+      "path": "tests/cli.rs",
+      "lines": 199,
+      "hash": {
+        "algorithm": "sha256",
+        "hash": "ede5c3fecd9b95502880703ef85ad518cad5af90ca818ad21aaac0557eee6683",
+        "length": null,
+        "offset": 0,
+        "path": "C:/projects/projects.rust.cg/cglibs/vcv-rs/tests/cli.rs",
+        "size": 5924
+      }
+    },
+    {
+      "path": "Cargo.toml",
+      "lines": 42,
+      "hash": {
+        "algorithm": "sha256",
+        "hash": "286d51360942873115c92854c9b2641d647dee5a6b60deb42082bbe97fa12cb2",
+        "length": null,
+        "offset": 0,
+        "path": "C:/projects/projects.rust.cg/cglibs/vcv-rs/Cargo.toml",
+        "size": 1410
+      }
+    },
+    {
+      "path": "Cargo.lock",
+      "lines": 267,
+      "hash": {
+        "algorithm": "sha256",
+        "hash": "33f8f9232415a339b737d2fccde260cce9f3507dbad197f0a9a2552b897c312c",
+        "length": null,
+        "offset": 0,
+        "path": "C:/projects/projects.rust.cg/cglibs/vcv-rs/Cargo.lock",
+        "size": 6938
+      }
+    }
+  ]
+}

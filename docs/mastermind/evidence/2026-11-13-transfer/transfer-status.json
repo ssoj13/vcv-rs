@@ -1,0 +1,25 @@
+{
+  "date": "2026-11-13",
+  "harness": "Codex",
+  "status": "paused_by_owner",
+  "reason": "environment_transfer",
+  "sourceCheckpointUnverified": true,
+  "platformGatesPassed": 0,
+  "platformGatesRequired": 2,
+  "buildsChecksTestsRun": [],
+  "d11": {
+    "staticIds": 225,
+    "addedUnreviewedId": 226
+  },
+  "d12": {
+    "manifestIds": 125,
+    "openDefect": "Windows/.NET PowerShell UTF16 environment size preflight",
+    "reviewIncomplete": true
+  },
+  "d13": {
+    "manifestIds": 110,
+    "independentReviewStarted": false
+  },
+  "publication": "owner_requested_main_checkpoint",
+  "artifacts": "Historical per-freeze records; no SDK payload; scripts unexecuted"
+}

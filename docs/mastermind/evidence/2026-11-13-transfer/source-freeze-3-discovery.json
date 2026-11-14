@@ -1,0 +1,8 @@
+{
+  "state": "extent-repair formatted,sourceonly; othersinheritfreeze2",
+  "file": {
+    "path": "src/discovery.rs",
+    "sha256": "d85930e69186d7c37f587e3f98f0d0c885efd560bf6eb19b0fa6e0c0cdc1731c",
+    "lines": 1039
+  }
+}

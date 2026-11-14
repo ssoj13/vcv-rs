@@ -1,213 +1,270 @@
 # vcv-rs
 
-Fast Visual Studio / MSVC environment detection for Windows. The library probes
-`vswhere.exe` and the Windows registry directly to assemble the same `PATH`,
-`INCLUDE`, `LIB`, `LIBPATH` (and related) variables that `vcvars64.bat` sets — in
-a fraction of the time.
+Toolchain and NVIDIA SDK discovery with environment generation for Windows and Linux.
+On Windows, Visual Studio/MSVC detection uses `vswhere.exe` and the registry. On Linux,
+the CLI assembles a native SDK environment without consulting Visual Studio.
 
-| | Time |
-|---|---:|
-| `vcv-rs` | ~20ms |
-| `vcvars64.bat` | ~2000ms |
-
-`vcvars64.bat` is slow because it spawns PowerShell for telemetry, runs 15+ batch
-files sequentially, and re-queries the registry. This crate does the same job with
-a single `vswhere.exe` call, direct registry lookups, and zero telemetry.
-
-The crate ships as a **library** (consumed by other projects via git-ref) plus a
-Windows-only **`vcv` CLI**. Both the `cli` and `cuda` features are on by default.
-On non-Windows targets the library compiles to a stub (and `vcv` is a stub binary)
-so workspace builds stay green.
+The crate provides the `vcv_rs` library and the `vcv-rs` binary
+(`vcv-rs.exe` on Windows). Default features are `cli`, `cuda`, `optix` and `nvsdk`.
+Windows/Linux implementation source is present; independent review, feature checks and native
+execution gates for this change are still pending. See the [work queue](TODO.md) and
+[domain index](docs/mastermind/MASTERMIND_INDEX.md). ARM64 fixtures do not establish native
+ARM64 hardware validation.
 
 ## Consume as a library (git-ref)
 
-This is a standalone canonical crate. Depend on it directly from Git:
+This is the canonical discovery crate. Depend on it directly:
 
 ```toml
 [dependencies]
-vcv-rs = { git = "ssh://git@github.com/ssoj13/vcv-rs.git", branch = "main" }
+vcv-rs = { git = "ssh://git@github.com/ssoj13/vcv-rs.git", branch = "main", default-features = false, features = ["cuda", "optix", "nvsdk"] }
 ```
 
-The import name is `vcv_rs`. Windows-only detection lives in the `detect`, `env`,
-and `format` modules:
+`Arch`, `discovery`, `env` and `format` are common library APIs. `detect` and `registry`
+are Windows-only. `Arch::from_target_arch` maps Rust's `x86_64`, `x86` and `aarch64`
+names to `X64`, `X86` and `Arm64`; `Arch::native()` returns the compiled target's
+architecture, or `None` when unsupported.
+
+This example creates an SDK environment for the native architecture. `Env::new` does not
+add a Windows compiler; use `build_env` below when MSVC is required.
 
 ```rust
-use vcv_rs::{detect, detect_cuda, env, format, Arch};
+use vcv_rs::{Arch, Env, env, fmt_ps};
 
-// Detect VS (None = newest available); pass Some(year) for 2017/2019/2022/2026.
-if let Some(vs) = detect::detect_vs(None) {
-    let sdk = detect::detect_sdk();
-    let ucrt = detect::detect_ucrt();
-
-    // Assemble PATH/INCLUDE/LIB/LIBPATH for host x64 -> target x64.
-    let mut e = env::build_env(&vs, sdk.as_ref(), ucrt.as_ref(), Arch::X64, Arch::X64);
-    if let Some(cuda) = detect_cuda() {
-        env::add_cuda(&mut e, &cuda, Arch::X64);
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let target = Arch::native()
+        .ok_or_else(|| std::io::Error::other("unsupported native architecture"))?;
+    let mut environment = Env::new(target);
+    if let Some(cuda) = vcv_rs::cuda::detect_cuda() {
+        env::add_cuda(&mut environment, &cuda)?;
     }
-
-    // Emit for a shell: fmt_ps / fmt_cmd / fmt_sh / fmt_json.
-    print!("{}", format::fmt_ps(&e));
+    if let Some(optix) = vcv_rs::optix::detect_optix() {
+        env::add_optix(&mut environment, &optix);
+    }
+    let script = fmt_ps(&environment)?;
+    print!("{script}");
+    Ok(())
 }
 ```
 
-`Arch` (`X64` / `X86` / `Arm64`) is available on all targets; `detect`, `env`,
-`format`, and `registry` are gated to `#[cfg(windows)]`.
+The Windows builder retains separate host and target architecture arguments:
 
-## CLI (`vcv`)
+```rust
+#[cfg(windows)]
+fn msvc_environment(
+    host: vcv_rs::Arch,
+    target: vcv_rs::Arch,
+) -> Result<vcv_rs::Env, Box<dyn std::error::Error>> {
+    let vs = vcv_rs::detect::detect_vs(None)
+        .ok_or_else(|| std::io::Error::other("Visual Studio C++ tools not found"))?;
+    let sdk = vcv_rs::detect::detect_sdk();
+    let ucrt = vcv_rs::detect::detect_ucrt();
+    Ok(vcv_rs::env::build_env(&vs, sdk.as_ref(), ucrt.as_ref(), host, target))
+}
+```
 
-The CLI is Windows-only (a stub binary on other targets). Default features include `cli` and `cuda`:
+`add_cuda`, `add_nvsdk` and `add_vcpkg` return `Result<(), EnvError>`.
+`add_optix` adds headers and root aliases without a fallible return.
+Paths and scalar values remain `PathBuf`/`OsString` until output validation; non-Unicode
+values are rejected by a formatter instead of being converted lossily. Library callers
+can inspect `requested_root()` alongside a missing detection result to diagnose an invalid
+explicit root.
 
-```powershell
+## CLI (`vcv-rs`)
+
+```sh
 cargo build --release
-# binary: target\release\vcv.exe
-cargo install --path .   # installs `vcv`
+cargo install --path .
+# target/release/vcv-rs, or target\release\vcv-rs.exe on Windows
 ```
 
 ### Usage
 
 ```powershell
-# PowerShell: apply environment to the current session (auto-detect shell)
-vcv-rs | iex
-vcv-rs -q | iex                         # quiet (suppress info on stderr)
+# Render first, then apply only after a successful CLI exit.
+$script = vcv-rs -f ps -q
+if ($LASTEXITCODE -eq 0) { ($script -join "`n") | Invoke-Expression }
 
-# Persist a helper in $PROFILE
-function vcvars { vcv-rs @args | iex }
-```
-
-```cmd
-:: CMD
-vcv-rs -f cmd > vcenv.bat && vcenv.bat
-for /f "delims=" %i in ('vcv-rs -f cmd') do @%i
-```
-
-```bash
-# Bash / MSYS2
-eval $(vcv-rs -f sh)
-```
-
-```powershell
-# JSON for tools
+# JSON metadata for tools
 vcv-rs -f json -q | ConvertFrom-Json
 ```
 
+```cmd
+:: Generate and immediately apply a snapshot of this process's inherited lists.
+vcv-rs -f cmd > vcenv.bat && call vcenv.bat
+```
+
+```sh
+# Linux / Bash / MSYS2: keep command substitution and evaluation quoted.
+script=$(vcv-rs -f sh -q) && eval "$script"
+```
+
+Informational output goes to stderr; stdout contains the fully rendered environment or
+inventory. Invalid selection or formatting fails before an executable script is emitted.
+
 ### Options
 
-```
--a, --arch      Target architecture: x64 (default), x86, arm64
--s, --host      Host architecture: x64 (default), x86, arm64
--f, --format    Output format: auto (default), ps, cmd, sh, json
--v, --vs        VS version year: 2017, 2019, 2022, 2026 (exact)
-    --vs-min    Oldest acceptable VS year
-    --vs-max    Newest acceptable VS year
--e, --edition   community | professional | enterprise | buildtools (default: any)
-    --prerelease  exclude (default), allow, only
--c, --cuda      CUDA Toolkit: auto (default), on (require), off (ignore)
--l, --list      List every detected toolchain and exit
--q, --quiet     Suppress info messages
-    --no-validate  Skip cl.exe validation
--h, --help      Print help
-```
+| Option | Behavior |
+|---|---|
+| `-a, --arch` / `-s, --host` | Target/host: `x64`, `x86`, `arm64`; default is native |
+| `-f, --format` | `auto`, `ps`/`powershell`, `cmd`, `sh`/`bash`, `json` |
+| `-v, --vs` | Exact Windows VS year: 2017, 2019, 2022, 2026 |
+| `--vs-min` / `--vs-max` | Windows VS year bounds; conflict with `--vs` |
+| `-e, --edition` | Windows: `community`, `professional`, `enterprise`, `buildtools` |
+| `--prerelease` | Windows: `exclude` (default), `allow`, `only` |
+| `-c, --cuda` / `-o, --optix` | `auto` (default), `on` (require), `off` (ignore); feature-gated |
+| `--no-nvsdk` | Omit separately shipped NVIDIA SDKs and ignore their root requests |
+| `-l, --list` | Inventory discovered installations and mark the selected roots |
+| `-q, --quiet` | Suppress informational stderr messages |
+| `--no-validate` | Windows: skip checking the selected host/target `cl.exe` path |
+| `-h, --help` | Show help and examples |
+
+Linux accepts native host and target setup. Explicit Windows-only flags, a non-native
+host/target or CMD output return errors; vcv-rs does not configure Linux cross-compilers.
 
 ### Selecting a toolchain
 
-Four independent axes, each with a default that needs no flag: **any year**, **any edition**,
-**released channels only**, newest wins. Set only what you care about.
+Windows selection supports year, edition and release channel filters:
 
 ```sh
-vcv-rs -l                 # what is installed, and which one the current flags pick
-vcv-rs -v 2022            # exactly VS 2022
-vcv-rs -v 2026            # exactly VS 2026
-vcv-rs --vs-max 2022      # newest up to 2022
-vcv-rs --vs-min 2022      # 2022 or newer
-vcv-rs -e buildtools      # standalone C++ Build Tools (the usual CI install)
-vcv-rs --prerelease only  # a Preview channel, on purpose
+vcv-rs --list
+vcv-rs --vs 2022 --edition buildtools
+vcv-rs --vs-min 2022
+vcv-rs --vs-max 2022
+vcv-rs --prerelease only
 ```
 
-`-v` is shorthand for setting both bounds and conflicts with `--vs-min`/`--vs-max`. Preview
-installs are excluded by default: they usually carry the highest version number, and an
-unqualified request should not land on a preview channel for that reason alone.
+Preview installations are excluded by default. With no explicit year bounds, the parsed CUDA
+`_MSC_VER` guard supplies VS-year search hints. Explicit year bounds take precedence.
+These hints and the existence of `cl.exe` do not prove that the actual compiler version is
+accepted by CUDA; Linux SDK discovery likewise does not establish GCC compatibility.
 
-When nothing matches, the error names the constraint that failed and lists what IS installed --
-"Visual Studio not found" on a machine with three of them points the operator at the wrong problem.
+The first nonempty configured SDK root alias is authoritative, even if invalid. Selection
+never replaces it with a newer searched installation or a lower-priority alias. For CUDA and
+OptiX, `auto` and `on` reject an invalid explicit root; `off` ignores that SDK and its roots.
+Separately shipped SDK requests are ignored only with `--no-nvsdk`. Inventories may include
+alternatives, but their selected marker comes from the actual selection.
 
-All paths are **prepended**, not replaced: existing `PATH`, `INCLUDE`, etc. stay
-intact and VS tools simply gain priority. Variables set: `PATH`, `INCLUDE`, `LIB`,
-`LIBPATH`, `VCToolsInstallDir`, `WindowsSdkDir`, `UCRTVersion`. When a variable is unset
-and the directory exists, `ProgramFiles(x86)`, `ProgramFiles` and `ProgramW6432` are restored.
-vcpkg finds `vswhere.exe` only through `ProgramFiles(x86)`; a shell that dropped it reports a
-missing Visual Studio instance even when the install is complete.
+## Environment output
+
+`Env` separates executable, runtime, include, linker and Windows assembly-reference paths.
+All `fmt_cmd`, `fmt_ps`, `fmt_sh` and `fmt_json` calls return
+`Result<String, FormatError>`.
+
+| Component | Windows | Linux |
+|---|---|---|
+| Executable paths | `PATH` | `PATH` |
+| Shared-library runtime paths | `PATH` | `LD_LIBRARY_PATH` |
+| Header paths | `INCLUDE` | `CPATH` |
+| Linker-library paths | `LIB` | `LIBRARY_PATH` |
+| Assembly references | `LIBPATH` | Unsupported when nonempty |
+
+PowerShell and POSIX output prepend new lists to the values present when the script is
+applied, without adding a separator for an unset or empty inherited value. On Windows,
+POSIX output converts drive paths in `PATH` to MSYS spelling; `INCLUDE`, `LIB` and
+`LIBPATH` retain native Windows spelling and separators. PowerShell on Linux uses Linux
+names and separators.
+
+CMD output captures inherited lists from the generator process at render time. It writes
+literal assignments; a saved script replaces later list changes with that captured snapshot.
+New entries precede inherited entries, with exact-string duplicates removed. Unset/empty
+inherited lists add no separator. An empty component already present in a nonempty inherited
+list is retained at most once: `A;;B;` contributes `A;;B`.
+
+Generated empty path entries, native list separators inside a component, control characters,
+invalid keys, reserved-list key collisions and non-Unicode values return errors. CMD additionally
+requires ASCII and rejects `%`, `!`, double quotes and assignments over 8,191 characters.
+A legitimate Windows key such as `ProgramFiles(x86)` is supported by PowerShell/CMD but cannot
+be exported as a POSIX identifier. JSON contains native path arrays and literal scalar strings;
+it does not merge an inherited environment.
 
 ## CUDA
 
-When a CUDA Toolkit is installed the `vcv` CLI adds it automatically: `bin` and `bin/x64` on
-`PATH`, `include` on `INCLUDE`, `lib/x64` on `LIB`, and `CUDA_PATH` / `CUDA_HOME` /
-`CUDA_PATH_V<major>_<minor>` all pointing at the same root. Turn it off with `-c off`,
-or drop the code entirely with `--no-default-features` (the `cuda` feature).
+CUDA discovery reads `CUDA_VERSION` from `include/cuda.h` and the MSVC guard from
+`include/crt/host_config.h`. A toolkit probe requires the CUDA header and `bin/nvcc`
+(`nvcc.exe` on Windows). Explicit aliases, in order:
 
-No CUDA version is hard-coded, so 12.x, 13.x, 14.x and whatever follows work the same:
+`CUDA_PATH`, `CUDA_HOME`, `CUDA_ROOT`, `CUDA_TOOLKIT_ROOT_DIR`.
 
-| Fact | Read from |
-|---|---|
-| toolkit version | `include/cuda.h` -> `#define CUDA_VERSION` |
-| accepted host compilers | `include/crt/host_config.h` -> the `_MSC_VER` guard |
-| candidate roots | `CUDA_PATH`/`CUDA_HOME`/`CUDA_ROOT`/`CUDA_TOOLKIT_ROOT_DIR`, the install directory, `nvcc` on `PATH` |
+Search locations include Windows's CUDA install parent and Linux's `/usr/local/cuda*` and
+`/opt/cuda`, plus `nvcc` on `PATH`. An `nvcc` symlink is resolved before deriving its root.
+`add_cuda` sets every root alias and `CUDA_PATH_V<major>_<minor>` to the selected root.
 
-Because the toolkit declares its own `_MSC_VER` range, the CLI (with no year flags) picks a
-Visual Studio that CUDA accepts instead of the newest one installed. That matters on a machine
-carrying a VS too new for its toolkit: `nvcc` would otherwise stop at a `#error` in
-`host_config.h`, which reads as a broken CUDA install rather than a compiler one release ahead.
-`-v` / `--vs-min` / `--vs-max` win outright: they are never silently narrowed by the toolkit.
-A pinned year outside the declared range is a warning, not an override.
+`CudaInfo::lib_dir(target)` and `runtime_dir(target)` describe separate capabilities.
+Windows uses target-tagged libraries and matching PE runtime evidence. Linux uses
+`targets/x86_64-linux/lib` or `targets/aarch64-linux/lib`; legacy `lib64` is native-target
+only. A static archive can establish tagged link metadata without establishing a runtime.
+A versioned shared soname can establish runtime metadata without an unversioned link artifact.
+A missing target link directory makes `add_cuda` fail.
 
-`build_env` does not look at CUDA. Library callers should call `detect_cuda` + `add_cuda` the
-same way the CLI does (see the git-ref example above).
-
-The environment variables searched are exactly the set `cudarc`'s build script reads, so a
-shell configured by `vcv` and a crate built in it can never select different toolkits.
-
-Linux root discovery is implemented (`/usr/local/cuda*`, `/opt/cuda`) but its library layout
-is still marked TODO; macOS has had no toolkit since CUDA 10.2 and is not searched.
+`CudaVersion::to_macro()` and `OptixVersion::to_macro()` return `Option<u32>` for checked
+version encoding. Discovering a future version does not establish compiler or runtime support.
 
 ## OptiX
 
-When an OptiX SDK is installed the CLI adds its `include` directory to `INCLUDE` and sets
-`OPTIX_ROOT` and `OptiX_INSTALL_DIR` to the same root (the OptiX runtime ships inside the display
-driver, so nothing goes on `PATH` or `LIB`). `-o on` fails when no SDK is found, `-o off` leaves it
-out; the `optix` feature drops the code.
+OptiX discovery reports the header version, function-table ABI and device-header presence.
+Root aliases are `OPTIX_ROOT`, `OptiX_INSTALL_DIR`, then `OPTIX_PATH`. Standard searches
+include `%ProgramData%\\NVIDIA Corporation\\OptiX SDK *` on Windows and `/opt/*optix*` on Linux.
+`add_optix` adds headers and aliases; the display driver supplies the runtime.
 
-| Fact | Read from |
-|---|---|
-| SDK version | `include/optix.h` -> `#define OPTIX_VERSION` |
-| function-table ABI | `include/optix_function_table.h` -> `#define OPTIX_ABI_VERSION` |
-| device header present | `include/internal/optix_device_impl.h` exists |
-| candidate roots | `OPTIX_ROOT`/`OptiX_INSTALL_DIR`/`OPTIX_PATH`, `%ProgramData%\NVIDIA Corporation\OptiX SDK *` (Linux: `/opt/*optix*`) |
+## Separately shipped NVIDIA SDKs
 
-Library callers use `vcv_rs::optix::detect_optix()` (newest) or `probe(root)` (exact), then
-`env::add_optix`.
+`nvsdk::Kind` covers cuDNN, Video Codec, Optical Flow, NVAPI, NGX, nvCOMP and NCCL.
+Use `nvsdk::detect(kind, target)` or `probe(kind, root, target)`; inventory functions also
+take an explicit target. `SdkInfo` contains `target`, `include_dir`, optional
+`runtime_dir` and optional `lib_dir`.
+
+Root aliases come from `Kind::root_vars()`. Search parents include installer locations,
+Linux `/usr` and `/usr/local`, and the native path list `NV_SDK_DIRS`. Windows nvCOMP
+CUDA-major layouts and Linux cuDNN/multiarch layouts are recognized. NVAPI is Windows-only;
+NCCL is Linux-only. cuFile discovery comes through the CUDA Toolkit.
+
+Header-only and runtime-only results remain distinct. For example, `libnccl.so.2` without
+an unversioned shared library or archive yields runtime metadata, not a link directory.
+Passive ELF/PE architecture checks do not load the library or prove its ABI, dependencies,
+GPU support or execution behavior.
 
 ## vcpkg
 
-When `VCPKG_ROOT` points at an existing tree, `installed/<triplet>/lib` is prepended to `LIB`
-and `LIBPATH`, `include` to `INCLUDE`, and `bin` to `PATH`. The triplet is `VCPKG_DEFAULT_TRIPLET`
-if that directory exists, otherwise `x64-windows` / `x86-windows` / `arm64-windows` (then
-`-static-md`, then `-static`). This is how MSVC `link.exe` finds `libssl.lib` from the vcpkg
-`openssl` port without each consumer hard-coding a path.
+Set `VCPKG_ROOT` to a tree with `installed/<triplet>/{include,lib}`. A nonempty
+`VCPKG_DEFAULT_TRIPLET` must name a supported installed triplet; it never silently falls back.
+Without it, discovery tries the native-platform candidates in order:
 
-Callers that consume the library (git-ref) should call `detect_vcpkg` + `probe_vcpkg` +
-`add_vcpkg` the same way the CLI does — `build_env` alone does not look at vcpkg.
+| Platform | Supported candidates |
+|---|---|
+| Windows | `x64`/`x86`/`arm64` + `-windows`, `-windows-static-md`, `-windows-static` |
+| Linux | `x64`/`arm64` + `-linux`, `-linux-dynamic` |
+
+Linux x86 and custom triplets are unsupported. Shared-library runtime metadata requires
+matching native binary evidence; a static-only directory does not qualify. `add_vcpkg`
+propagates both the selected root and `VCPKG_DEFAULT_TRIPLET`.
+Library callers use `detect_vcpkg`, `probe_vcpkg(root, target)` and fallible `add_vcpkg`.
+
+## Migrating existing callers
+
+- Construct `Env::new(target)` instead of `Env::default()`.
+- Call `add_cuda(&mut environment, &cuda)?`; its target comes from `Env`, so the old third architecture argument is removed.
+- Propagate `add_nvsdk`, `add_vcpkg` and all formatter errors. Formatters return a string inside `Result`; render it before printing.
+- Pass a target to NVIDIA SDK discovery and use `SdkInfo.runtime_dir` in place of `bin_dir`; keep `lib_dir` separate.
+- Handle the `Option<u32>` returned by CUDA/OptiX `to_macro()`.
 
 ## Build
 
-The repo ships a `bootstrap.py` wrapper (release by default, Python 3 stdlib only):
+The library can omit all optional features with `--no-default-features`. `cli` alone
+enables clap and the binary; `cuda`, `optix` and `nvsdk` enable their discovery APIs.
+Their full Windows/Linux feature matrix remains a verification gate.
+
+The repository includes a Python 3 standard-library wrapper:
 
 ```sh
-python bootstrap.py b   # build (cargo build --workspace --release)
-python bootstrap.py t   # test  (cargo test --workspace)
-python bootstrap.py c   # check (cargo fmt --check + clippy -D warnings)
+python bootstrap.py b   # release build
+python bootstrap.py t   # tests
+python bootstrap.py c   # formatting/lint checks
 ```
 
-`bootstrap.py b` builds the library and the `vcv` binary (both `cli` and `cuda` are default
-features). Drop them with `--no-default-features` if a consumer wants the library only.
+For the current delivery wave, follow the [work queue](TODO.md): finish source and commit/push
+to main before compiler or test commands. Examples above document interfaces; they are not
+receipts that the pending gates have passed.
 
 ## License
 

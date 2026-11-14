@@ -1,13 +1,13 @@
-//! Library for detecting Visual Studio / MSVC environment (Windows).
+//! Toolchain and SDK discovery with environment generation on Windows and Linux.
 //!
-//! On non-Windows targets the crate compiles as a stub so workspace builds succeed;
-//! use [detect::detect_vs](detect::detect_vs) and [env::build_env](env::build_env) only on Windows.
+//! SDK discovery, environment assembly, and shell formatters are available on both
+//! systems. Visual Studio and Windows registry discovery are Windows-only.
 
 use std::fmt;
 
 /// Target or host architecture for the toolchain.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-#[cfg_attr(windows, derive(clap::ValueEnum))]
+#[cfg_attr(feature = "cli", derive(clap::ValueEnum))]
 pub enum Arch {
     X64,
     X86,
@@ -15,6 +15,21 @@ pub enum Arch {
 }
 
 impl Arch {
+    /// Map a Rust target architecture name to the supported toolchain architecture.
+    pub fn from_target_arch(arch: &str) -> Option<Self> {
+        match arch {
+            "x86_64" => Some(Self::X64),
+            "x86" => Some(Self::X86),
+            "aarch64" => Some(Self::Arm64),
+            _ => None,
+        }
+    }
+
+    /// Architecture of the platform for which this library was compiled.
+    pub fn native() -> Option<Self> {
+        Self::from_target_arch(std::env::consts::ARCH)
+    }
+
     pub fn as_str(&self) -> &'static str {
         match self {
             Arch::X64 => "x64",
@@ -40,16 +55,17 @@ pub mod cuda;
 #[cfg(feature = "optix")]
 pub mod optix;
 
-/// cuDNN, Video Codec, Optical Flow, NVAPI, NGX (DLSS) and nvCOMP SDK discovery.
+/// cuDNN, Video Codec, Optical Flow, NVAPI, NGX, nvCOMP, and NCCL SDK discovery.
 #[cfg(feature = "nvsdk")]
 pub mod nvsdk;
 
+/// Shared explicit-root and native binary metadata contracts.
+pub mod discovery;
+pub mod env;
+pub mod format;
+
 #[cfg(windows)]
 pub mod detect;
-#[cfg(windows)]
-pub mod env;
-#[cfg(windows)]
-pub mod format;
 #[cfg(windows)]
 pub mod registry;
 
@@ -62,9 +78,28 @@ pub use optix::{OptixInfo, OptixVersion, detect_optix};
 pub use detect::{
     Prerelease, SdkInfo, VsEdition, VsFilter, VsInfo, detect_vs_filtered, detect_vs_range, list_vs,
 };
-#[cfg(windows)]
-pub use env::Env;
-#[cfg(windows)]
-pub use env::{VcpkgInfo, add_vcpkg, detect_vcpkg, probe_vcpkg};
-#[cfg(windows)]
-pub use format::{fmt_cmd, fmt_json, fmt_ps, fmt_sh};
+pub use env::{Env, EnvError, VcpkgInfo, add_vcpkg, detect_vcpkg, probe_vcpkg};
+pub use format::{FormatError, fmt_cmd, fmt_json, fmt_ps, fmt_sh};
+
+#[cfg(test)]
+mod tests {
+    use super::Arch;
+
+    #[test]
+    fn rust_target_architectures_are_explicit() {
+        assert_eq!(Arch::from_target_arch("x86_64"), Some(Arch::X64));
+        assert_eq!(Arch::from_target_arch("x86"), Some(Arch::X86));
+        assert_eq!(Arch::from_target_arch("aarch64"), Some(Arch::Arm64));
+        for unsupported in ["", "x64", "arm64", "riscv64", "nvptx64"] {
+            assert_eq!(Arch::from_target_arch(unsupported), None);
+        }
+    }
+
+    #[test]
+    fn native_architecture_uses_the_rust_target_name() {
+        assert_eq!(
+            Arch::native(),
+            Arch::from_target_arch(std::env::consts::ARCH)
+        );
+    }
+}

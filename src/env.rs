@@ -1,20 +1,18 @@
 //! # Environment Builder Module
 //!
-//! Assembles PATH, INCLUDE, LIB, LIBPATH from detected VS/SDK/UCRT paths.
+//! Assembles target-specific compiler, SDK, and vcpkg environments on Windows and Linux.
 //!
 //! ## Purpose
-//! Builds the complete environment needed for MSVC compilation:
-//! - PATH: compiler binaries (cl.exe, link.exe) and SDK tools
-//! - INCLUDE: headers (VC++, ATL/MFC, SDK, UCRT)
-//! - LIB: static libraries for linking
-//! - LIBPATH: assembly references (.NET metadata)
+//! Keeps executable paths, shared-library runtime directories, headers, linker
+//! libraries, and Windows assembly references separate. Formatters map these
+//! components to the native environment variable names.
 //!
 //! ## Key Functions
 //! - `build_env()` - Main function that assembles all paths based on host/target arch
 //! - `add_cuda()` - Appends a CUDA Toolkit to an already-built environment (`cuda` feature)
 //! - `add_optix()` - Appends an OptiX SDK's headers and root variables (`optix` feature)
 //! - `add_nvsdk()` - Appends cuDNN / Video Codec / Optical Flow / NVAPI / NGX / nvCOMP (`nvsdk` feature)
-//! - `add_vcpkg()` - Appends `VCPKG_ROOT` installed libs (openssl etc.) for MSVC link
+//! - `add_vcpkg()` - Appends target-compatible installed headers, libraries, and runtime metadata
 //!
 //! ## Dependencies
 //! - `detect` module for VsInfo/SdkInfo structs
@@ -23,35 +21,94 @@
 use crate::Arch;
 #[cfg(feature = "cuda")]
 use crate::cuda::CudaInfo;
+#[cfg(windows)]
 use crate::detect::{SdkInfo, VsInfo};
 #[cfg(feature = "nvsdk")]
 use crate::nvsdk::SdkInfo as NvSdkInfo;
 #[cfg(feature = "optix")]
 use crate::optix::OptixInfo;
 use std::collections::BTreeMap;
+use std::ffi::{OsStr, OsString};
+use std::fmt;
 use std::path::{Path, PathBuf};
 
-/// Assembled environment
-#[derive(Debug, Default)]
+/// Assembled environment for one explicit target architecture.
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Env {
+    pub target: Arch,
     pub path: Vec<PathBuf>,
+    pub runtime: Vec<PathBuf>,
     pub include: Vec<PathBuf>,
     pub lib: Vec<PathBuf>,
     pub libpath: Vec<PathBuf>,
-    pub vars: BTreeMap<String, String>,
+    pub vars: BTreeMap<String, OsString>,
 }
 
 impl Env {
+    pub fn new(target: Arch) -> Self {
+        Self {
+            target,
+            path: Vec::new(),
+            runtime: Vec::new(),
+            include: Vec::new(),
+            lib: Vec::new(),
+            libpath: Vec::new(),
+            vars: BTreeMap::new(),
+        }
+    }
+
     fn add_if_exists(lst: &mut Vec<PathBuf>, paths: &[PathBuf]) {
         for p in paths {
-            if p.exists() {
+            if p.is_dir() && !lst.contains(p) {
                 lst.push(p.clone());
             }
         }
     }
 }
 
-/// Build complete environment
+/// An environment component cannot be applied to this target.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum EnvError {
+    TargetMismatch { environment: Arch, component: Arch },
+    MissingCudaLibrary { target: Arch },
+    UnsupportedSdk { sdk: &'static str },
+    UnsupportedVcpkgTriplet { triplet: String },
+}
+
+impl fmt::Display for EnvError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::TargetMismatch {
+                environment,
+                component,
+            } => write!(
+                f,
+                "environment target {environment:?} differs from component target {component:?}"
+            ),
+            Self::MissingCudaLibrary { target } => {
+                write!(f, "CUDA has no native library directory for {target:?}")
+            }
+            Self::UnsupportedSdk { sdk } => {
+                write!(f, "{sdk} is unsupported on this operating system")
+            }
+            Self::UnsupportedVcpkgTriplet { triplet } => {
+                write!(f, "unsupported vcpkg triplet {triplet}")
+            }
+        }
+    }
+}
+
+impl std::error::Error for EnvError {}
+
+#[cfg(windows)]
+fn with_trailing_backslash(value: &OsStr) -> OsString {
+    let mut value = value.to_os_string();
+    value.push("\\");
+    value
+}
+
+/// Build complete Windows MSVC environment.
+#[cfg(windows)]
 pub fn build_env(
     vs: &VsInfo,
     sdk: Option<&SdkInfo>,
@@ -59,7 +116,7 @@ pub fn build_env(
     host: Arch,
     target: Arch,
 ) -> Env {
-    let mut env = Env::default();
+    let mut env = Env::new(target);
     let tp = &vs.tools;
 
     let hd = match host {
@@ -142,47 +199,59 @@ pub fn build_env(
     }
 
     // Standard variables
+    env.vars.insert(
+        "VSINSTALLDIR".into(),
+        with_trailing_backslash(vs.install.as_os_str()),
+    );
+    env.vars.insert(
+        "VCINSTALLDIR".into(),
+        with_trailing_backslash(vs.vc.as_os_str()),
+    );
+    env.vars.insert(
+        "VCToolsInstallDir".into(),
+        with_trailing_backslash(tp.as_os_str()),
+    );
     env.vars
-        .insert("VSINSTALLDIR".into(), format!("{}\\", vs.install.display()));
+        .insert("VCToolsVersion".into(), vs.tools_ver.clone().into());
     env.vars
-        .insert("VCINSTALLDIR".into(), format!("{}\\", vs.vc.display()));
-    env.vars
-        .insert("VCToolsInstallDir".into(), format!("{}\\", tp.display()));
-    env.vars
-        .insert("VCToolsVersion".into(), vs.tools_ver.clone());
-    env.vars.insert("VisualStudioVersion".into(), vs.vs_ver());
+        .insert("VisualStudioVersion".into(), vs.vs_ver().into());
     env.vars.insert("Platform".into(), tgt.into());
 
     if let Some(sdk) = sdk {
-        env.vars
-            .insert("WindowsSdkDir".into(), format!("{}\\", sdk.path.display()));
-        env.vars
-            .insert("WindowsSDKVersion".into(), format!("{}\\", sdk.version));
+        env.vars.insert(
+            "WindowsSdkDir".into(),
+            with_trailing_backslash(sdk.path.as_os_str()),
+        );
+        env.vars.insert(
+            "WindowsSDKVersion".into(),
+            with_trailing_backslash(OsStr::new(&sdk.version)),
+        );
     }
 
     if let Some(ucrt) = ucrt {
         env.vars.insert(
             "UniversalCRTSdkDir".into(),
-            format!("{}\\", ucrt.path.display()),
+            with_trailing_backslash(ucrt.path.as_os_str()),
         );
-        env.vars.insert("UCRTVersion".into(), ucrt.version.clone());
+        env.vars
+            .insert("UCRTVersion".into(), ucrt.version.clone().into());
     }
 
     // Windows sets these at logon. Agent and service shells drop them. vcpkg finds
     // vswhere.exe only as `%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe`
     // and otherwise reports that no complete Visual Studio instance exists.
     // A value the process already has is left alone.
-    for (key, path) in program_files_if_missing(
-        |k| std::env::var_os(k).is_some(),
-        |p| Path::new(p).is_dir(),
-    ) {
-        env.vars.insert((*key).to_string(), (*path).to_string());
+    for (key, path) in
+        program_files_if_missing(|k| std::env::var_os(k).is_some(), |p| Path::new(p).is_dir())
+    {
+        env.vars.insert((*key).to_string(), OsString::from(path));
     }
 
     env
 }
 
 /// Standard program-files locations, restored only when the variable is unset and the directory exists.
+#[cfg(any(windows, test))]
 fn program_files_if_missing(
     is_set: impl Fn(&str) -> bool,
     dir_exists: impl Fn(&str) -> bool,
@@ -197,183 +266,280 @@ fn program_files_if_missing(
     .collect()
 }
 
-/// Append a CUDA Toolkit to an environment built by [`build_env`].
-///
-/// Additive by construction — it only pushes onto the existing lists, so the MSVC environment is
-/// exactly what it was and CUDA cannot shadow a compiler path. That is also why it is a separate
-/// function rather than a parameter of `build_env`: a caller that does not want CUDA gets the old
-/// behaviour byte for byte, without a flag threaded through the assembly.
-///
-/// **All three root variables are written to the same value on purpose.** `CUDA_PATH` is what
-/// NVIDIA's installer sets, `CUDA_HOME` is what most build scripts read (`cudarc`'s among them),
-/// and the versioned `CUDA_PATH_V{major}_{minor}` is how tools select between side-by-side toolkits. Leaving
-/// any of them pointing elsewhere is how a build compiles against one toolkit and links another.
+/// Append CUDA tools, headers, native libraries, and all root aliases.
+/// A missing target library fails before any environment fields change.
 #[cfg(feature = "cuda")]
-pub fn add_cuda(env: &mut Env, cuda: &CudaInfo, target: Arch) {
-    env.path.extend(cuda.bin_dirs());
+pub fn add_cuda(env: &mut Env, cuda: &CudaInfo) -> Result<(), EnvError> {
+    let lib = cuda
+        .lib_dir(env.target)
+        .ok_or(EnvError::MissingCudaLibrary { target: env.target })?;
+    Env::add_if_exists(&mut env.path, &cuda.bin_dirs());
     Env::add_if_exists(&mut env.include, &[cuda.include_dir()]);
-    if let Some(lib) = cuda.lib_dir(target) {
-        env.lib.push(lib);
+    Env::add_if_exists(&mut env.lib, std::slice::from_ref(&lib));
+    if let Some(runtime) = cuda.runtime_dir(env.target) {
+        Env::add_if_exists(&mut env.runtime, std::slice::from_ref(&runtime));
     }
-
-    let root = cuda.root.display().to_string();
-    env.vars.insert("CUDA_PATH".into(), root.clone());
-    env.vars.insert("CUDA_HOME".into(), root.clone());
-    env.vars.insert(cuda.versioned_var(), root);
+    for var in crate::cuda::root_vars() {
+        env.vars
+            .insert((*var).into(), cuda.root.as_os_str().to_os_string());
+    }
+    env.vars
+        .insert(cuda.versioned_var(), cuda.root.as_os_str().to_os_string());
+    Ok(())
 }
 
-/// Append an OptiX SDK to an already-built environment.
-///
-/// Headers only: the include directory goes on `INCLUDE`, nothing on `PATH` or `LIB` (the OptiX
-/// runtime is part of the display driver). `OPTIX_ROOT` and `OptiX_INSTALL_DIR` are both set to the
-/// same root so Rust build scripts and NVIDIA's CMake cannot select different SDKs.
+/// Append OptiX headers and all root aliases.
 #[cfg(feature = "optix")]
 pub fn add_optix(env: &mut Env, optix: &OptixInfo) {
     Env::add_if_exists(&mut env.include, &[optix.include_dir()]);
-    let root = optix.root.display().to_string();
-    env.vars.insert("OPTIX_ROOT".into(), root.clone());
-    env.vars.insert("OptiX_INSTALL_DIR".into(), root);
+    for var in crate::optix::root_vars() {
+        env.vars
+            .insert((*var).into(), optix.root.as_os_str().to_os_string());
+    }
 }
 
-/// Append a separately shipped NVIDIA SDK (cuDNN, Video Codec, NVAPI, ...): its header directory
-/// on `INCLUDE`, its link libraries on `LIB`, its DLLs on `PATH`, and its first root variable
-/// ([`crate::nvsdk::Kind::root_vars`]) set to the root, so build scripts select the same copy.
+/// Append an SDK's headers, optional native libraries, runtime paths, and root aliases.
 #[cfg(feature = "nvsdk")]
-pub fn add_nvsdk(env: &mut Env, sdk: &NvSdkInfo) {
+pub fn add_nvsdk(env: &mut Env, sdk: &NvSdkInfo) -> Result<(), EnvError> {
+    if env.target != sdk.target {
+        return Err(EnvError::TargetMismatch {
+            environment: env.target,
+            component: sdk.target,
+        });
+    }
+    if !sdk.kind.is_supported() {
+        return Err(EnvError::UnsupportedSdk {
+            sdk: sdk.kind.name(),
+        });
+    }
     Env::add_if_exists(&mut env.include, std::slice::from_ref(&sdk.include_dir));
     if let Some(lib) = &sdk.lib_dir {
-        env.lib.push(lib.clone());
+        Env::add_if_exists(&mut env.lib, std::slice::from_ref(lib));
     }
-    if let Some(bin) = &sdk.bin_dir {
-        env.path.push(bin.clone());
+    if let Some(runtime) = &sdk.runtime_dir {
+        Env::add_if_exists(&mut env.runtime, std::slice::from_ref(runtime));
     }
-    if let Some(var) = sdk.kind.root_vars().first() {
-        env.vars.insert((*var).to_string(), sdk.root.display().to_string());
+    for var in sdk.kind.root_vars() {
+        env.vars
+            .insert((*var).into(), sdk.root.as_os_str().to_os_string());
     }
+    Ok(())
 }
 
-/// Installed vcpkg tree resolved from `VCPKG_ROOT`.
-///
-/// `triplet` is the first `installed/<triplet>/lib` that exists, so a machine with only
-/// `x64-windows-static-md` still works. `VCPKG_DEFAULT_TRIPLET` wins when that directory exists.
+/// Installed vcpkg tree for one native-platform target.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct VcpkgInfo {
+    pub target: Arch,
     pub root: PathBuf,
     pub triplet: String,
     pub lib: PathBuf,
     pub include: PathBuf,
-    pub bin: Option<PathBuf>,
+    pub runtime_dir: Option<PathBuf>,
+}
+
+/// The first nonempty configured vcpkg root, including an invalid path.
+pub fn requested_vcpkg_root() -> Option<crate::discovery::RootRequest> {
+    crate::discovery::first_root(&["VCPKG_ROOT"])
+}
+
+/// The configured triplet without trimming, Unicode conversion, or validation.
+pub fn requested_vcpkg_triplet() -> Option<OsString> {
+    std::env::var_os("VCPKG_DEFAULT_TRIPLET").filter(|value| !value.is_empty())
 }
 
 /// `VCPKG_ROOT` when it names an existing directory.
 pub fn detect_vcpkg() -> Option<PathBuf> {
-    let root = PathBuf::from(std::env::var_os("VCPKG_ROOT")?);
+    let root = requested_vcpkg_root()?.path;
     root.is_dir().then_some(root)
 }
 
-fn vcpkg_triplet_candidates(target: Arch) -> Vec<String> {
-    let arch = target.as_str();
-    let mut out = Vec::new();
-    if let Ok(explicit) = std::env::var("VCPKG_DEFAULT_TRIPLET") {
-        let t = explicit.trim();
-        if !t.is_empty() {
-            out.push(t.to_string());
-        }
+fn vcpkg_triplet_candidates(target: Arch, explicit: Option<&OsStr>, windows: bool) -> Vec<String> {
+    let suffixes: &[&str] = if windows {
+        &["windows", "windows-static-md", "windows-static"]
+    } else if target != Arch::X86 {
+        &["linux", "linux-dynamic"]
+    } else {
+        // No supported native x86 Linux triplets in this discovery contract.
+        &[]
+    };
+    let supported: Vec<String> = suffixes
+        .iter()
+        .map(|suffix| format!("{}-{suffix}", target.as_str()))
+        .collect();
+    match explicit.filter(|value| !value.is_empty()) {
+        Some(value) => supported
+            .into_iter()
+            .filter(|candidate| value == OsStr::new(candidate))
+            .collect(),
+        None => supported,
     }
-    for suffix in ["windows", "windows-static-md", "windows-static"] {
-        let t = format!("{arch}-{suffix}");
-        if !out.iter().any(|e| e == &t) {
-            out.push(t);
-        }
-    }
-    out
 }
 
-/// Locate `installed/<triplet>/{lib,include}` under a vcpkg root.
+/// Locate native-platform `installed/<triplet>/{lib,include}`.
+/// An explicit nonempty triplet is authoritative, including when invalid or uninstalled.
 pub fn probe_vcpkg(root: &Path, target: Arch) -> Option<VcpkgInfo> {
-    for triplet in vcpkg_triplet_candidates(target) {
+    if !cfg!(any(target_os = "windows", target_os = "linux")) {
+        return None;
+    }
+    probe_vcpkg_with(
+        root,
+        target,
+        requested_vcpkg_triplet().as_deref(),
+        cfg!(windows),
+        |path| path.is_dir(),
+        has_vcpkg_runtime,
+    )
+}
+
+fn probe_vcpkg_with(
+    root: &Path,
+    target: Arch,
+    explicit: Option<&OsStr>,
+    windows: bool,
+    dir_exists: impl Fn(&Path) -> bool,
+    runtime_exists: impl Fn(&Path, Arch, bool) -> bool,
+) -> Option<VcpkgInfo> {
+    for triplet in vcpkg_triplet_candidates(target, explicit, windows) {
         let installed = root.join("installed").join(&triplet);
         let lib = installed.join("lib");
-        if !lib.is_dir() {
+        let include = installed.join("include");
+        if !dir_exists(&lib) || !dir_exists(&include) {
             continue;
         }
-        let include = installed.join("include");
-        let bin = installed.join("bin");
+        let runtime = if windows {
+            installed.join("bin")
+        } else {
+            lib.clone()
+        };
         return Some(VcpkgInfo {
+            target,
             root: root.to_path_buf(),
             triplet,
             lib,
             include,
-            bin: bin.is_dir().then_some(bin),
+            runtime_dir: runtime_exists(&runtime, target, windows).then_some(runtime),
         });
     }
     None
 }
 
-/// Append vcpkg installed libs to an environment built by [`build_env`].
-///
-/// Additive: MSVC/CUDA paths stay as they were. `LIB`/`LIBPATH` get `installed/<triplet>/lib`
-/// so `link.exe` can open `libssl.lib` / `libcrypto.lib` without each crate repeating the probe.
-/// `VCPKG_ROOT` is written so `vcpkg` crate build scripts see the same tree.
-pub fn add_vcpkg(env: &mut Env, vcpkg: &VcpkgInfo) {
+fn vcpkg_runtime_candidate(
+    path: &Path,
+    target: Arch,
+    windows: bool,
+    arch: impl Fn(&Path) -> Option<Arch>,
+) -> bool {
+    let Some(name) = path.file_name().and_then(OsStr::to_str) else {
+        return false;
+    };
+    let shared = if windows {
+        path.extension()
+            .and_then(OsStr::to_str)
+            .is_some_and(|ext| ext.eq_ignore_ascii_case("dll"))
+    } else {
+        name.ends_with(".so")
+            || name.split_once(".so.").is_some_and(|(_, version)| {
+                !version.is_empty()
+                    && version.split('.').all(|part| {
+                        !part.is_empty() && part.bytes().all(|byte| byte.is_ascii_digit())
+                    })
+            })
+    };
+    shared && arch(path) == Some(target)
+}
+
+fn has_vcpkg_runtime(dir: &Path, target: Arch, windows: bool) -> bool {
+    let Ok(entries) = std::fs::read_dir(dir) else {
+        return false;
+    };
+    entries.filter_map(Result::ok).any(|entry| {
+        let path = entry.path();
+        path.is_file()
+            && vcpkg_runtime_candidate(&path, target, windows, crate::discovery::binary_arch)
+    })
+}
+
+/// Append native vcpkg headers, libraries, runtime directories, and root variable.
+pub fn add_vcpkg(env: &mut Env, vcpkg: &VcpkgInfo) -> Result<(), EnvError> {
+    if env.target != vcpkg.target {
+        return Err(EnvError::TargetMismatch {
+            environment: env.target,
+            component: vcpkg.target,
+        });
+    }
+    if !cfg!(any(target_os = "windows", target_os = "linux"))
+        || !vcpkg_triplet_candidates(env.target, None, cfg!(windows)).contains(&vcpkg.triplet)
+    {
+        return Err(EnvError::UnsupportedVcpkgTriplet {
+            triplet: vcpkg.triplet.clone(),
+        });
+    }
     Env::add_if_exists(&mut env.include, std::slice::from_ref(&vcpkg.include));
-    env.lib.push(vcpkg.lib.clone());
-    env.libpath.push(vcpkg.lib.clone());
-    if let Some(bin) = &vcpkg.bin {
-        env.path.push(bin.clone());
+    Env::add_if_exists(&mut env.lib, std::slice::from_ref(&vcpkg.lib));
+    #[cfg(windows)]
+    Env::add_if_exists(&mut env.libpath, std::slice::from_ref(&vcpkg.lib));
+    if let Some(runtime) = &vcpkg.runtime_dir {
+        Env::add_if_exists(&mut env.runtime, std::slice::from_ref(runtime));
     }
     env.vars
-        .insert("VCPKG_ROOT".into(), vcpkg.root.display().to_string());
+        .insert("VCPKG_ROOT".into(), vcpkg.root.as_os_str().to_os_string());
+    env.vars.insert(
+        "VCPKG_DEFAULT_TRIPLET".into(),
+        OsString::from(vcpkg.triplet.as_str()),
+    );
+    Ok(())
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::fs;
+    use std::collections::BTreeSet;
 
-    fn write_dir(p: &Path) {
-        fs::create_dir_all(p).expect("mkdir");
+    fn write_dir(dirs: &mut BTreeSet<PathBuf>, p: &Path) {
+        dirs.insert(p.to_path_buf());
+    }
+
+    fn installed(root: &Path, triplet: &str) -> BTreeSet<PathBuf> {
+        let mut dirs = BTreeSet::new();
+        for sub in ["lib", "include"] {
+            write_dir(&mut dirs, &root.join("installed").join(triplet).join(sub));
+        }
+        dirs
     }
 
     #[test]
     fn probe_prefers_default_triplet_when_installed() {
-        let root = std::env::temp_dir().join("vcv_rs_vcpkg_probe_test");
-        let _ = fs::remove_dir_all(&root);
-        write_dir(
-            &root
-                .join("installed")
-                .join("x64-windows-static-md")
-                .join("lib"),
-        );
-        write_dir(&root.join("installed").join("x64-windows").join("lib"));
-        // Safety: test-local; restored below.
-        let prev = std::env::var_os("VCPKG_DEFAULT_TRIPLET");
-        unsafe { std::env::set_var("VCPKG_DEFAULT_TRIPLET", "x64-windows-static-md") };
-        let info = probe_vcpkg(&root, Arch::X64).expect("probe");
-        match prev {
-            Some(v) => unsafe { std::env::set_var("VCPKG_DEFAULT_TRIPLET", v) },
-            None => unsafe { std::env::remove_var("VCPKG_DEFAULT_TRIPLET") },
-        }
+        let root = Path::new("fixture");
+        let mut dirs = installed(root, "x64-windows-static-md");
+        dirs.extend(installed(root, "x64-windows"));
+        let info = probe_vcpkg_with(
+            root,
+            Arch::X64,
+            Some(OsStr::new("x64-windows-static-md")),
+            true,
+            |path| dirs.contains(path),
+            |_, _, _| false,
+        )
+        .expect("probe");
         assert_eq!(info.triplet, "x64-windows-static-md");
-        let _ = fs::remove_dir_all(&root);
+        assert_eq!(info.target, Arch::X64);
     }
 
     #[test]
     fn probe_falls_back_to_x64_windows() {
-        let root = std::env::temp_dir().join("vcv_rs_vcpkg_fallback_test");
-        let _ = fs::remove_dir_all(&root);
-        write_dir(&root.join("installed").join("x64-windows").join("lib"));
-        write_dir(&root.join("installed").join("x64-windows").join("include"));
-        let prev = std::env::var_os("VCPKG_DEFAULT_TRIPLET");
-        unsafe { std::env::remove_var("VCPKG_DEFAULT_TRIPLET") };
-        let info = probe_vcpkg(&root, Arch::X64).expect("probe");
-        match prev {
-            Some(v) => unsafe { std::env::set_var("VCPKG_DEFAULT_TRIPLET", v) },
-            None => unsafe { std::env::remove_var("VCPKG_DEFAULT_TRIPLET") },
-        }
+        let root = Path::new("fixture");
+        let dirs = installed(root, "x64-windows");
+        let info = probe_vcpkg_with(
+            root,
+            Arch::X64,
+            None,
+            true,
+            |path| dirs.contains(path),
+            |_, _, _| false,
+        )
+        .expect("probe");
         assert_eq!(info.triplet, "x64-windows");
-        assert!(info.bin.is_none());
-        let _ = fs::remove_dir_all(&root);
+        assert!(info.runtime_dir.is_none());
     }
 
     #[test]
@@ -381,5 +547,461 @@ mod tests {
         assert!(program_files_if_missing(|_| true, |_| true).is_empty());
         let x86 = program_files_if_missing(|_| false, |p| p.contains("x86"));
         assert_eq!(x86, vec![("ProgramFiles(x86)", "C:/Program Files (x86)")]);
+    }
+
+    #[test]
+    fn explicit_triplets_never_fall_back() {
+        let root = Path::new("fixture");
+        let dirs = installed(root, "x64-windows");
+        for value in [
+            "x64-windows-static",
+            "arm64-windows",
+            "x64-linux",
+            "custom",
+            "../x64-windows",
+            " x64-windows ",
+            " ",
+        ] {
+            assert!(
+                probe_vcpkg_with(
+                    root,
+                    Arch::X64,
+                    Some(OsStr::new(value)),
+                    true,
+                    |path| dirs.contains(path),
+                    |_, _, _| false
+                )
+                .is_none(),
+                "{value}"
+            );
+        }
+        assert!(
+            probe_vcpkg_with(
+                root,
+                Arch::X64,
+                Some(OsStr::new("")),
+                true,
+                |path| dirs.contains(path),
+                |_, _, _| false
+            )
+            .is_some()
+        );
+    }
+
+    #[test]
+    fn linux_triplets_are_target_and_platform_specific() {
+        let root = Path::new("fixture");
+        let mut dirs = installed(root, "arm64-linux-dynamic");
+        dirs.extend(installed(root, "x64-windows"));
+        let info = probe_vcpkg_with(
+            root,
+            Arch::Arm64,
+            None,
+            false,
+            |path| dirs.contains(path),
+            |_, _, _| false,
+        )
+        .expect("arm64 Linux");
+        assert_eq!(info.triplet, "arm64-linux-dynamic");
+        assert!(info.runtime_dir.is_none());
+        assert!(
+            probe_vcpkg_with(
+                root,
+                Arch::X64,
+                None,
+                false,
+                |path| dirs.contains(path),
+                |_, _, _| false
+            )
+            .is_none()
+        );
+        assert!(vcpkg_triplet_candidates(Arch::X86, None, false).is_empty());
+    }
+
+    #[test]
+    fn probe_requires_headers_and_libraries() {
+        let root = Path::new("fixture");
+        let mut dirs = installed(root, "x64-linux");
+        dirs.remove(&root.join("installed/x64-linux/include"));
+        assert!(
+            probe_vcpkg_with(
+                root,
+                Arch::X64,
+                None,
+                false,
+                |path| dirs.contains(path),
+                |_, _, _| false
+            )
+            .is_none()
+        );
+    }
+
+    #[test]
+    fn runtime_requires_native_shared_binary_evidence() {
+        for (name, windows, expected) in [
+            ("native.dll", true, true),
+            ("native.DLL", true, true),
+            ("libnative.so", false, true),
+            ("libnative.so.1.2", false, true),
+            ("libnative.a", false, false),
+            ("native.lib", true, false),
+            ("native.dll", false, false),
+            ("libnative.so", true, false),
+            ("libnative.so.bad", false, false),
+        ] {
+            let path = Path::new(name);
+            assert_eq!(
+                vcpkg_runtime_candidate(path, Arch::X64, windows, |_| Some(Arch::X64)),
+                expected,
+                "{name}"
+            );
+            assert!(!vcpkg_runtime_candidate(
+                path,
+                Arch::X64,
+                windows,
+                |_| Some(Arch::Arm64)
+            ));
+            assert!(!vcpkg_runtime_candidate(path, Arch::X64, windows, |_| None));
+        }
+        let root = Path::new("fixture");
+        let dirs = installed(root, "arm64-linux-dynamic");
+        let info = probe_vcpkg_with(
+            root,
+            Arch::Arm64,
+            None,
+            false,
+            |path| dirs.contains(path),
+            |path, target, windows| path.ends_with("lib") && target == Arch::Arm64 && !windows,
+        )
+        .expect("native shared library evidence");
+        assert_eq!(info.runtime_dir.as_ref(), Some(&info.lib));
+    }
+
+    fn raw_root() -> PathBuf {
+        #[cfg(unix)]
+        {
+            use std::os::unix::ffi::OsStringExt;
+            PathBuf::from(OsString::from_vec(b"raw-\xff-root".to_vec()))
+        }
+        #[cfg(windows)]
+        {
+            use std::os::windows::ffi::OsStringExt;
+            PathBuf::from(OsString::from_wide(&[b'r' as u16, 0xd800, b't' as u16]))
+        }
+        #[cfg(not(any(unix, windows)))]
+        PathBuf::from("raw-root")
+    }
+
+    #[test]
+    fn non_unicode_triplet_is_invalid() {
+        let value = raw_root().into_os_string();
+        assert!(vcpkg_triplet_candidates(Arch::X64, Some(&value), true).is_empty());
+    }
+
+    fn vcpkg_fixture(target: Arch) -> VcpkgInfo {
+        VcpkgInfo {
+            target,
+            root: raw_root(),
+            triplet: format!(
+                "{}-{}",
+                target.as_str(),
+                if cfg!(windows) { "windows" } else { "linux" }
+            ),
+            include: PathBuf::from("."),
+            lib: PathBuf::from("."),
+            runtime_dir: Some(PathBuf::from(".")),
+        }
+    }
+
+    #[test]
+    fn vcpkg_mismatch_does_not_mutate() {
+        let mut env = Env::new(Arch::X64);
+        let before = env.clone();
+        let mut sdk = vcpkg_fixture(Arch::Arm64);
+        sdk.triplet = "invalid".into();
+        assert!(matches!(
+            add_vcpkg(&mut env, &sdk),
+            Err(EnvError::TargetMismatch { .. })
+        ));
+        assert_eq!(env, before);
+    }
+
+    #[test]
+    #[cfg(any(target_os = "windows", target_os = "linux"))]
+    fn vcpkg_add_deduplicates_and_preserves_raw_root() {
+        let triplets: &[&str] = if cfg!(windows) {
+            &["x64-windows", "x64-windows-static-md", "x64-windows-static"]
+        } else {
+            &["x64-linux", "x64-linux-dynamic"]
+        };
+        for triplet in triplets {
+            let mut sdk = vcpkg_fixture(Arch::X64);
+            sdk.triplet = (*triplet).into();
+            let mut env = Env::new(Arch::X64);
+            env.vars
+                .insert("VCPKG_DEFAULT_TRIPLET".into(), "stale-triplet".into());
+            add_vcpkg(&mut env, &sdk).expect("first add");
+            add_vcpkg(&mut env, &sdk).expect("second add");
+            assert_eq!(env.include, [PathBuf::from(".")]);
+            assert_eq!(env.lib, [PathBuf::from(".")]);
+            assert_eq!(env.runtime, [PathBuf::from(".")]);
+            assert!(env.path.is_empty());
+            assert_eq!(env.vars["VCPKG_ROOT"], sdk.root.as_os_str());
+            assert_eq!(env.vars["VCPKG_DEFAULT_TRIPLET"], OsStr::new(*triplet));
+            assert_eq!(env.libpath.len(), usize::from(cfg!(windows)));
+        }
+    }
+
+    #[test]
+    fn vcpkg_invalid_triplet_does_not_mutate() {
+        let mut env = Env::new(Arch::X64);
+        env.include.push(PathBuf::from("already-present"));
+        env.vars
+            .insert("VCPKG_DEFAULT_TRIPLET".into(), "prior-triplet".into());
+        let before = env.clone();
+        let mut sdk = vcpkg_fixture(Arch::X64);
+        sdk.triplet = "invalid".into();
+        assert!(matches!(
+            add_vcpkg(&mut env, &sdk),
+            Err(EnvError::UnsupportedVcpkgTriplet { .. })
+        ));
+        assert_eq!(env, before);
+    }
+
+    #[test]
+    #[cfg(feature = "nvsdk")]
+    fn nvsdk_mismatch_does_not_mutate() {
+        let mut env = Env::new(Arch::X64);
+        let before = env.clone();
+        let sdk = NvSdkInfo {
+            kind: crate::nvsdk::Kind::Cudnn,
+            target: Arch::Arm64,
+            root: raw_root(),
+            include_dir: PathBuf::from("."),
+            lib_dir: None,
+            runtime_dir: None,
+            version: "1".into(),
+        };
+        assert!(matches!(
+            add_nvsdk(&mut env, &sdk),
+            Err(EnvError::TargetMismatch { .. })
+        ));
+        assert_eq!(env, before);
+    }
+
+    #[test]
+    #[cfg(all(feature = "nvsdk", any(target_os = "windows", target_os = "linux")))]
+    fn nvsdk_header_only_and_runtime_only_stay_distinct() {
+        let sdk = NvSdkInfo {
+            kind: crate::nvsdk::Kind::Cudnn,
+            target: Arch::X64,
+            root: raw_root(),
+            include_dir: PathBuf::from("."),
+            lib_dir: None,
+            runtime_dir: None,
+            version: "1".into(),
+        };
+        let mut env = Env::new(Arch::X64);
+        add_nvsdk(&mut env, &sdk).expect("header-only");
+        assert!(env.lib.is_empty() && env.runtime.is_empty() && env.path.is_empty());
+        let mut runtime_sdk = sdk.clone();
+        runtime_sdk.runtime_dir = Some(PathBuf::from("."));
+        add_nvsdk(&mut env, &runtime_sdk).expect("runtime-only");
+        add_nvsdk(&mut env, &runtime_sdk).expect("duplicate");
+        assert_eq!(env.include.len(), 1);
+        assert_eq!(env.runtime.len(), 1);
+        assert!(env.lib.is_empty() && env.path.is_empty());
+        for alias in sdk.kind.root_vars() {
+            assert_eq!(env.vars[*alias], sdk.root.as_os_str());
+        }
+    }
+
+    #[test]
+    #[cfg(feature = "optix")]
+    fn optix_sets_every_alias_without_loss() {
+        let sdk = OptixInfo {
+            root: raw_root(),
+            version: crate::optix::OptixVersion {
+                major: 1,
+                minor: 0,
+                micro: 0,
+            },
+            abi: 1,
+            device_impl: false,
+        };
+        let mut env = Env::new(Arch::X64);
+        add_optix(&mut env, &sdk);
+        for alias in crate::optix::root_vars() {
+            assert_eq!(env.vars[*alias], sdk.root.as_os_str());
+        }
+    }
+
+    #[test]
+    #[cfg(all(feature = "cuda", any(target_os = "windows", target_os = "linux")))]
+    fn cuda_runtime_requires_matching_shared_library() {
+        use std::sync::atomic::{AtomicU64, Ordering};
+        static NEXT_FIXTURE: AtomicU64 = AtomicU64::new(0);
+        struct Fixture(PathBuf);
+        impl Drop for Fixture {
+            fn drop(&mut self) {
+                // Test cleanup must not replace an assertion failure during unwinding.
+                if let Err(error) = std::fs::remove_dir_all(&self.0) {
+                    eprintln!(
+                        "could not remove CUDA fixture {}: {error}",
+                        self.0.display()
+                    );
+                }
+            }
+        }
+
+        let root = std::env::temp_dir().join(format!(
+            "vcv-rs-env-cuda-{}-{}",
+            std::process::id(),
+            NEXT_FIXTURE.fetch_add(1, Ordering::Relaxed)
+        ));
+        std::fs::create_dir(&root).expect("create unique fixture");
+        let fixture = Fixture(root);
+        let lib = fixture.0.join(if cfg!(windows) {
+            "lib/x64"
+        } else {
+            "targets/x86_64-linux/lib"
+        });
+        let runtime = if cfg!(windows) {
+            fixture.0.join("bin/x64")
+        } else {
+            lib.clone()
+        };
+        let tools = fixture.0.join("bin");
+        std::fs::create_dir_all(&tools).expect("create executable directory");
+        std::fs::create_dir_all(&lib).expect("create link directory");
+        std::fs::create_dir_all(&runtime).expect("create runtime directory");
+        std::fs::write(
+            lib.join(if cfg!(windows) {
+                "cudart.lib"
+            } else {
+                "libcudart_static.a"
+            }),
+            crate::discovery::test_archive(
+                if cfg!(windows) {
+                    object::BinaryFormat::Coff
+                } else {
+                    object::BinaryFormat::Elf
+                },
+                Arch::X64,
+            ),
+        )
+        .expect("write native link archive");
+        let sdk = CudaInfo {
+            root: fixture.0.clone(),
+            version: crate::cuda::CudaVersion {
+                major: 13,
+                minor: 0,
+            },
+            nvcc: fixture.0.join("bin/nvcc"),
+            msvc: None,
+        };
+        let mut env = Env::new(Arch::X64);
+        assert_eq!(sdk.lib_dir(Arch::X64), Some(lib.clone()));
+        assert_eq!(sdk.runtime_dir(Arch::X64), None);
+        add_cuda(&mut env, &sdk).expect("static-only toolkit");
+        assert_eq!(env.lib, [lib.clone()]);
+        assert!(env.runtime.is_empty());
+        assert_eq!(env.path, [tools.clone()]);
+        let output: serde_json::Value =
+            serde_json::from_str(&crate::format::fmt_json(&env).expect("static toolkit output"))
+                .expect("parse static toolkit output");
+        assert_eq!(
+            output["PATH"],
+            serde_json::json!([tools.to_str().expect("Unicode fixture path")])
+        );
+
+        let runtime_file = runtime.join(if cfg!(windows) {
+            "cudart64_13.dll"
+        } else {
+            "libcudart.so.13"
+        });
+        let mut header = if cfg!(windows) {
+            let mut bytes = vec![0; 70];
+            bytes[..2].copy_from_slice(b"MZ");
+            bytes[0x3c..0x40].copy_from_slice(&64u32.to_le_bytes());
+            bytes[64..68].copy_from_slice(b"PE\0\0");
+            bytes[68..70].copy_from_slice(&0xaa64u16.to_le_bytes());
+            bytes
+        } else {
+            let mut bytes = vec![0; 20];
+            bytes[..4].copy_from_slice(b"\x7fELF");
+            bytes[4..7].copy_from_slice(&[2, 1, 1]);
+            bytes[18..20].copy_from_slice(&183u16.to_le_bytes());
+            bytes
+        };
+        std::fs::write(&runtime_file, &header).expect("write wrong-architecture runtime metadata");
+        assert_eq!(sdk.runtime_dir(Arch::X64), None);
+        add_cuda(&mut env, &sdk).expect("ignore wrong-architecture runtime");
+        assert!(env.runtime.is_empty());
+        assert_eq!(env.path, [tools.clone()]);
+        let output: serde_json::Value =
+            serde_json::from_str(&crate::format::fmt_json(&env).expect("foreign runtime output"))
+                .expect("parse foreign runtime output");
+        assert_eq!(
+            output["PATH"],
+            serde_json::json!([tools.to_str().expect("Unicode fixture path")])
+        );
+
+        if cfg!(windows) {
+            header[68..70].copy_from_slice(&0x8664u16.to_le_bytes());
+        } else {
+            header[18..20].copy_from_slice(&62u16.to_le_bytes());
+        }
+        std::fs::write(&runtime_file, &header).expect("write matching runtime metadata");
+        assert_eq!(sdk.runtime_dir(Arch::X64), Some(runtime.clone()));
+        add_cuda(&mut env, &sdk).expect("matching runtime");
+        add_cuda(&mut env, &sdk).expect("duplicate runtime");
+        assert_eq!(env.runtime, [runtime.clone()]);
+        assert_eq!(env.lib, [lib]);
+        assert_eq!(env.path, [tools.clone()]);
+        let output: serde_json::Value =
+            serde_json::from_str(&crate::format::fmt_json(&env).expect("verified runtime output"))
+                .expect("parse verified runtime output");
+        #[cfg(windows)]
+        assert_eq!(
+            output["PATH"],
+            serde_json::json!([
+                tools.to_str().expect("Unicode tools path"),
+                runtime.to_str().expect("Unicode runtime path"),
+            ])
+        );
+        #[cfg(target_os = "linux")]
+        {
+            assert_eq!(
+                output["PATH"],
+                serde_json::json!([tools.to_str().expect("Unicode tools path")])
+            );
+            assert_eq!(
+                output["LD_LIBRARY_PATH"],
+                serde_json::json!([runtime.to_str().expect("Unicode runtime path")])
+            );
+        }
+        for alias in crate::cuda::root_vars() {
+            assert_eq!(env.vars[*alias], sdk.root.as_os_str());
+        }
+        assert_eq!(env.vars[&sdk.versioned_var()], sdk.root.as_os_str());
+    }
+
+    #[test]
+    #[cfg(feature = "cuda")]
+    fn cuda_missing_target_library_does_not_mutate() {
+        let sdk = CudaInfo {
+            root: PathBuf::from("vcv-rs-missing-cuda-fixture"),
+            version: crate::cuda::CudaVersion { major: 1, minor: 0 },
+            nvcc: PathBuf::from("vcv-rs-missing-cuda-fixture/bin/nvcc"),
+            msvc: None,
+        };
+        let mut env = Env::new(Arch::Arm64);
+        let before = env.clone();
+        assert!(matches!(
+            add_cuda(&mut env, &sdk),
+            Err(EnvError::MissingCudaLibrary { .. })
+        ));
+        assert_eq!(env, before);
     }
 }

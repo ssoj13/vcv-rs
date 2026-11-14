@@ -1,0 +1,370 @@
+{
+  "schema": "vcv-rs.d11.extent-repair.v1",
+  "date": "2026-11-13",
+  "worker": "/root/vcv_d11/archive_owner_repair",
+  "status": "SOURCE_FROZEN_STATIC_ONLY",
+  "source": {
+    "path": "C:/projects/projects.rust.cg/cglibs/vcv-rs/src/discovery.rs",
+    "sha256": "2338607dc4f24fdd722b85d16d5830ccc58d6fc044f6cbce6622dfbcf1c7894a",
+    "bytes": 38070,
+    "physical_lines": 929,
+    "pre_repair_sha256": "93c932e0ed2b5b53273e43673873367e7a3ac2e033a4db2533b1ca5bdff94ef4"
+  },
+  "regression_first": {
+    "pre_production_sha256": "8c4c2010bb16c5f540a8776e8453dee7ae7f56af934aeab9f07d464c90646428",
+    "receipt": "Regression helper/test source written and read back before any production parser edit; no tests executed.",
+    "cases": [
+      "COFF normal and BigObj out-of-member raw offset/size, EOF/truncated payload, maximal fields, zero raw length and uninitialized-data semantics",
+      "ELF32 and ELF64 file-backed section offset/size overflow and truncation, exact EOF, NOBITS/NULL and zero-size preservation",
+      "ELF32 and ELF64 program offset/filesz overflow and truncation, exact EOF, PT_NULL and zero-filesz with large memory size"
+    ]
+  },
+  "changed_ranges": [
+    {
+      "start": 164,
+      "end": 172,
+      "purpose": "shared checked_file_range with zero-size semantics"
+    },
+    {
+      "start": 196,
+      "end": 205,
+      "purpose": "fixed-size COFF section-header iteration and canonical file ranges"
+    },
+    {
+      "start": 257,
+      "end": 257,
+      "purpose": "canonical ELF section/program traits"
+    },
+    {
+      "start": 287,
+      "end": 305,
+      "purpose": "fixed-size ELF section/program iteration and payload range checks"
+    },
+    {
+      "start": 726,
+      "end": 842,
+      "purpose": "new synthetic fixtures and three regression tests"
+    }
+  ],
+  "read_windows": [
+    [
+      1,
+      102
+    ],
+    [
+      103,
+      313
+    ],
+    [
+      314,
+      455
+    ],
+    [
+      456,
+      725
+    ],
+    [
+      726,
+      843
+    ],
+    [
+      844,
+      929
+    ]
+  ],
+  "ledger": [
+    {
+      "id": 201,
+      "name": "archive_arch",
+      "line": 103,
+      "status": "unchanged; static readback"
+    },
+    {
+      "id": 202,
+      "name": "archive_member_arch",
+      "line": 138,
+      "status": "unchanged; static readback"
+    },
+    {
+      "id": 203,
+      "name": "checked_table",
+      "line": 160,
+      "status": "unchanged; static readback"
+    },
+    {
+      "id": 204,
+      "name": "coff_machine_arch",
+      "line": 175,
+      "status": "unchanged; static readback"
+    },
+    {
+      "id": 205,
+      "name": "coff_object_arch",
+      "line": 186,
+      "status": "changed: checked section/program physical payload extents"
+    },
+    {
+      "id": 206,
+      "name": "coff_import_arch",
+      "line": 226,
+      "status": "unchanged; static readback"
+    },
+    {
+      "id": 207,
+      "name": "elf_object_arch",
+      "line": 253,
+      "status": "changed: checked section/program physical payload extents"
+    },
+    {
+      "id": 208,
+      "name": "test_archive",
+      "line": 314,
+      "status": "unchanged; static readback"
+    },
+    {
+      "id": 209,
+      "name": "test_archive_members",
+      "line": 319,
+      "status": "unchanged; static readback"
+    },
+    {
+      "id": 210,
+      "name": "test_object",
+      "line": 342,
+      "status": "unchanged; static readback"
+    },
+    {
+      "id": 211,
+      "name": "check_archive",
+      "line": 424,
+      "status": "unchanged; static readback"
+    },
+    {
+      "id": 212,
+      "name": "archive_proof_requires_physical_native_members",
+      "line": 457,
+      "status": "unchanged; static readback"
+    },
+    {
+      "id": 213,
+      "name": "archives_reject_truncation_overflow_thin_and_missing_members",
+      "line": 504,
+      "status": "unchanged; static readback"
+    },
+    {
+      "id": 214,
+      "name": "elf_archive_class_endian_version_and_table_bounds_must_agree",
+      "line": 534,
+      "status": "unchanged; static readback"
+    },
+    {
+      "id": 215,
+      "name": "import_object",
+      "line": 569,
+      "status": "unchanged; static readback"
+    },
+    {
+      "id": 216,
+      "name": "big_object",
+      "line": 581,
+      "status": "unchanged; static readback"
+    },
+    {
+      "id": 217,
+      "name": "coff_archives_validate_short_import_bigobj_and_declared_tables",
+      "line": 594,
+      "status": "unchanged; static readback"
+    },
+    {
+      "id": 218,
+      "name": "archives_skip_canonical_metadata_and_check_padding",
+      "line": 668,
+      "status": "unchanged; static readback"
+    },
+    {
+      "id": 219,
+      "name": "archive_declared_symbol_and_extended_section_tables_are_bounded",
+      "line": 688,
+      "status": "unchanged; static readback"
+    },
+    {
+      "id": 220,
+      "name": "checked_file_range",
+      "line": 165,
+      "status": "new: shared zero-aware checked byte range"
+    },
+    {
+      "id": 221,
+      "name": "elf_section_extent_object",
+      "line": 726,
+      "status": "new regression source; execution pending"
+    },
+    {
+      "id": 222,
+      "name": "elf_program_extent_object",
+      "line": 745,
+      "status": "new regression source; execution pending"
+    },
+    {
+      "id": 223,
+      "name": "coff_section_payload_extents_stay_inside_each_member",
+      "line": 771,
+      "status": "new regression source; execution pending"
+    },
+    {
+      "id": 224,
+      "name": "elf_section_payload_extents_preserve_nobits_null_and_zero_data",
+      "line": 800,
+      "status": "new regression source; execution pending"
+    },
+    {
+      "id": 225,
+      "name": "elf_program_payload_extents_preserve_null_and_zero_file_size",
+      "line": 822,
+      "status": "new regression source; execution pending"
+    }
+  ],
+  "consumer_immutable_hashes": [
+    {
+      "file": "cuda.rs",
+      "sha256": "a1aef9ae1e89894f001b551ff7022703275b098a903422187233e2d2d1621fbc",
+      "before_after_identical": true
+    },
+    {
+      "file": "nvsdk.rs",
+      "sha256": "3574f3e1635afbed421b41f93de1b695da722803097c0b055158df41848beb57",
+      "before_after_identical": true
+    },
+    {
+      "file": "env.rs",
+      "sha256": "4a9a7d18b59c8ee5f48b1f156816578d896b7b99f224b8e8df08ad8186726572",
+      "before_after_identical": true
+    }
+  ],
+  "graph": {
+    "status": "fresh root graph; dirty worktree reported; no worker index writes",
+    "coff_object_arch": "LOW upstream impact",
+    "elf_object_arch": "LOW upstream impact"
+  },
+  "canonical_apis": [
+    {
+      "path": "object-0.40.0/src/read/coff/section.rs:534",
+      "binding": "ImageSectionHeader::coff_file_range() -> Option<(u32,u32)>",
+      "semantics": "Returns no physical data for IMAGE_SCN_CNT_UNINITIALIZED_DATA; otherwise PointerToRawData/SizeOfRawData."
+    },
+    {
+      "path": "object-0.40.0/src/read/elf/section.rs:700,750",
+      "binding": "SectionHeader::sh_type(endian), file_range(endian) -> Option<(u64,u64)>",
+      "semantics": "Canonical NOBITS exclusion; explicitly skip SHT_NULL because its fields may contain extended table metadata."
+    },
+    {
+      "path": "object-0.40.0/src/read/elf/segment.rs:163,178",
+      "binding": "ProgramHeader::p_type(endian), file_range(endian) -> (u64,u64)",
+      "semantics": "Explicitly skip PT_NULL; p_filesz determines file bytes, p_memsz need not be materialized."
+    },
+    {
+      "binding": "ReadRef::read_at::<ImageSectionHeader/E::SectionHeader/E::ProgramHeader>",
+      "semantics": "Read each fixed header separately after existing checked table extents; never materialize section/program payloads."
+    }
+  ],
+  "primary_sources": [
+    {
+      "url": "https://learn.microsoft.com/en-us/windows/win32/debug/pe-format",
+      "http_status": 200,
+      "semantics": "COFF section payload uses raw-data pointer and size; uninitialized section semantics preserved using canonical API."
+    },
+    {
+      "url": "https://gabi.xinuos.com/elf/03-sheader.html",
+      "http_status": 200,
+      "semantics": "SHT_NOBITS has no physical bytes; SHT_NULL is inactive with other fields undefined or extended table metadata."
+    },
+    {
+      "url": "https://gabi.xinuos.com/elf/07-pheader.html",
+      "http_status": 200,
+      "semantics": "PT_NULL is unused; p_filesz counts physical bytes and may be zero; p_memsz may exceed it."
+    }
+  ],
+  "seven_questions": [
+    {
+      "id": "Q1",
+      "result": "No new production stub or weakened extent claim. Fixture constants express physical file layouts; three regressions replace the missing extent coverage.",
+      "evidence": [
+        "discovery.rs:165",
+        "discovery.rs:771",
+        "discovery.rs:800",
+        "discovery.rs:822"
+      ]
+    },
+    {
+      "id": "Q2",
+      "result": "checked_file_range is used by both canonical COFF and ELF production parsers; archive_arch signatures and consumer wiring unchanged.",
+      "evidence": [
+        "discovery.rs:202",
+        "discovery.rs:294",
+        "discovery.rs:302"
+      ]
+    },
+    {
+      "id": "Q3",
+      "result": "All offset/count/size arithmetic checked; canonical read errors propagate to None; no new production unchecked indexing, expect, unwrap or fallback promotion.",
+      "evidence": [
+        "discovery.rs:160",
+        "discovery.rs:165",
+        "discovery.rs:198",
+        "discovery.rs:288",
+        "discovery.rs:299"
+      ]
+    },
+    {
+      "id": "Q4",
+      "result": "Regression source independently covers EOF/overrun/overflow/truncation and zero-sized/non-file-backed cases; NULL metadata does not become a payload.",
+      "evidence": [
+        "discovery.rs:771",
+        "discovery.rs:800",
+        "discovery.rs:822"
+      ]
+    },
+    {
+      "id": "Q5",
+      "result": "Only fixed section/program headers read; no payload data or full table read. ReadCache still retains physical-size-bounded variable metadata buffers, no global memory-cap claim.",
+      "evidence": [
+        "discovery.rs:200",
+        "discovery.rs:289",
+        "discovery.rs:300"
+      ]
+    },
+    {
+      "id": "Q6",
+      "result": "No new production struct/layout/SIMD requirement; vectors and fixture indexing are test-only.",
+      "evidence": [
+        "discovery.rs:165",
+        "discovery.rs:726",
+        "discovery.rs:745"
+      ]
+    },
+    {
+      "id": "Q7",
+      "result": "Canonical API/primary semantics verified; compiler/test behavior and real SDK archive acceptance remain unexecuted root gates.",
+      "evidence": [
+        "discovery.rs:186",
+        "discovery.rs:253"
+      ]
+    }
+  ],
+  "axes": {
+    "A": "Canonical COFF/ELF physical-range semantics preserved with meaningful positive/negative fixture source.",
+    "B": "Checked table/byte range math and fail-closed errors; zero data handled explicitly.",
+    "C": "No payload reads; fixed-header cache allocations proportional to physical table metadata remain.",
+    "D": "No production data-layout changes.",
+    "E": "No new shared state or concurrency; existing per-call object ReadCache used synchronously.",
+    "F": "Shared checked_file_range used from both existing production parsers; public signatures and consumer bytes unchanged."
+  },
+  "limits": [
+    "Source-only worker self-review, no independent approval claim.",
+    "No compiler, Cargo build/check/test/clippy, formatter, git or index mutation executed.",
+    "COFF relocation-table contents/extents and full symbol/relocation/ABI/link validity are outside this bounded repair; no relocation-overflow semantics changed.",
+    "Short-import string termination remains outside metadata extent proof.",
+    "Canonical archive names caching remains physical-size-bounded variable memory, not a fixed global cap.",
+    "Root must format/reindex, dispatch fresh targeted Inquisitor, and later run native Windows/Linux and pinned real NGX archive gates after publication."
+  ]
+}

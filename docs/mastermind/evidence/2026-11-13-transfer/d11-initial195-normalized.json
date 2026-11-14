@@ -1,0 +1,1785 @@
+{
+  "qualification": "Normalized coordinator record of initial full independent reviews, not verbatim raw transcripts. Current freeze2 anchors supplied for lookup; initial verdicts apply only to historical source-freeze hashes. Fresh closure2 pending.",
+  "initialHashes": {
+    "cuda.rs": "6545e64abdbb00cc4079305a4b1e9f44abd07e24eb91e7620b06354ebb68310b",
+    "discovery.rs": "f88c7b6cf162e0568e0ccf3b38fee23af47585fef6c3828e97ae3d9341b065c6",
+    "optix.rs": "0c25bfb1179d389cbd0b934203381bc09eca90d72d273b4a4eca2b58446c7806",
+    "nvsdk.rs": "0c0ccb1bf8d2d3f07d500bd3240715ba5a1fc75225f8c616931df9442c195979"
+  },
+  "findings": [
+    {
+      "id": "D11a-D1",
+      "reason": "Stale first existing PATH nvcc prevents considering later canonical probe-valid CUDA toolkit."
+    },
+    {
+      "id": "D11a-D2",
+      "reason": "Family prefixes omit real NPP, nvJPEG, nvFatbin, nvBLAS, nvPTXCompiler artifacts."
+    },
+    {
+      "id": "D11b-D1",
+      "reason": "None native binary classification plus target-tagged path accepts malformed or wrong-format static archives."
+    },
+    {
+      "id": "D11b-D2",
+      "reason": "nvCOMP filename-only fallback overrides foreign native architecture and couples imports to runtime DLL."
+    }
+  ],
+  "rows": [
+    {
+      "id": 1,
+      "file": "src/cuda.rs",
+      "line": 44,
+      "symbol": "CudaVersion",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 2,
+      "file": "src/cuda.rs",
+      "line": 45,
+      "symbol": "CudaVersion.major",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 3,
+      "file": "src/cuda.rs",
+      "line": 46,
+      "symbol": "CudaVersion.minor",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 4,
+      "file": "src/cuda.rs",
+      "line": 51,
+      "symbol": "CudaVersion::from_macro",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 5,
+      "file": "src/cuda.rs",
+      "line": 59,
+      "symbol": "CudaVersion::to_macro",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 6,
+      "file": "src/cuda.rs",
+      "line": 76,
+      "symbol": "CudaVersion::fmt",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 7,
+      "file": "src/cuda.rs",
+      "line": 90,
+      "symbol": "MsvcRange",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 8,
+      "file": "src/cuda.rs",
+      "line": 91,
+      "symbol": "MsvcRange.min",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 9,
+      "file": "src/cuda.rs",
+      "line": 92,
+      "symbol": "MsvcRange.max_exclusive",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 10,
+      "file": "src/cuda.rs",
+      "line": 97,
+      "symbol": "MsvcRange::accepts",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 11,
+      "file": "src/cuda.rs",
+      "line": 106,
+      "symbol": "MsvcRange::max_vs_year",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 12,
+      "file": "src/cuda.rs",
+      "line": 111,
+      "symbol": "MsvcRange::min_vs_year",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 13,
+      "file": "src/cuda.rs",
+      "line": 121,
+      "symbol": "vs_year_for_msc",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 14,
+      "file": "src/cuda.rs",
+      "line": 133,
+      "symbol": "CudaInfo",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 15,
+      "file": "src/cuda.rs",
+      "line": 135,
+      "symbol": "CudaInfo.root",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 16,
+      "file": "src/cuda.rs",
+      "line": 136,
+      "symbol": "CudaInfo.version",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 17,
+      "file": "src/cuda.rs",
+      "line": 138,
+      "symbol": "CudaInfo.nvcc",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 18,
+      "file": "src/cuda.rs",
+      "line": 141,
+      "symbol": "CudaInfo.msvc",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 19,
+      "file": "src/cuda.rs",
+      "line": 148,
+      "symbol": "CudaInfo::bin_dirs",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 20,
+      "file": "src/cuda.rs",
+      "line": 156,
+      "symbol": "CudaInfo::include_dir",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 21,
+      "file": "src/cuda.rs",
+      "line": 165,
+      "symbol": "CudaInfo::lib_dir",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "FAIL_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 22,
+      "file": "src/cuda.rs",
+      "line": 205,
+      "symbol": "CudaInfo::runtime_dir",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "FAIL_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 23,
+      "file": "src/cuda.rs",
+      "line": 241,
+      "symbol": "CudaInfo::versioned_var",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 24,
+      "file": "src/cuda.rs",
+      "line": 252,
+      "symbol": "ROOT_VARS",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 25,
+      "file": "src/cuda.rs",
+      "line": 260,
+      "symbol": "root_vars",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 26,
+      "file": "src/cuda.rs",
+      "line": 265,
+      "symbol": "requested_root",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 27,
+      "file": "src/cuda.rs",
+      "line": 274,
+      "symbol": "probe",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 28,
+      "file": "src/cuda.rs",
+      "line": 292,
+      "symbol": "NVCC Windows",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 29,
+      "file": "src/cuda.rs",
+      "line": 294,
+      "symbol": "NVCC otherhosts",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 30,
+      "file": "src/cuda.rs",
+      "line": 297,
+      "symbol": "read_version",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 31,
+      "file": "src/cuda.rs",
+      "line": 314,
+      "symbol": "read_msvc_range",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 32,
+      "file": "src/cuda.rs",
+      "line": 346,
+      "symbol": "list_toolkits",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "FAIL_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 33,
+      "file": "src/cuda.rs",
+      "line": 350,
+      "symbol": "searched_roots",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "FAIL_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 34,
+      "file": "src/cuda.rs",
+      "line": 358,
+      "symbol": "inventory_with",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 35,
+      "file": "src/cuda.rs",
+      "line": 375,
+      "symbol": "detect_cuda",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "FAIL_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 36,
+      "file": "src/cuda.rs",
+      "line": 379,
+      "symbol": "detect_with",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 37,
+      "file": "src/cuda.rs",
+      "line": 390,
+      "symbol": "standard_roots",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 38,
+      "file": "src/cuda.rs",
+      "line": 441,
+      "symbol": "nvcc_on_path",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "FAIL_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 39,
+      "file": "src/cuda.rs",
+      "line": 453,
+      "symbol": "nvcc_root_from_file",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 40,
+      "file": "src/cuda.rs",
+      "line": 462,
+      "symbol": "is_cuda_family",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "FAIL_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 41,
+      "file": "src/cuda.rs",
+      "line": 495,
+      "symbol": "is_cuda_library",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "FAIL_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 42,
+      "file": "src/cuda.rs",
+      "line": 507,
+      "symbol": "is_cuda_runtime_file",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "FAIL_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 43,
+      "file": "src/cuda.rs",
+      "line": 520,
+      "symbol": "has_cuda_runtime_file",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "FAIL_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 44,
+      "file": "src/cuda.rs",
+      "line": 533,
+      "symbol": "has_cuda_link_file",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "FAIL_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 45,
+      "file": "src/cuda.rs",
+      "line": 560,
+      "symbol": "has_native_cuda_library",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "FAIL_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 46,
+      "file": "src/cuda.rs",
+      "line": 576,
+      "symbol": "tests",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 47,
+      "file": "src/cuda.rs",
+      "line": 580,
+      "symbol": "tests::NEXT_FIXTURE",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 48,
+      "file": "src/cuda.rs",
+      "line": 582,
+      "symbol": "tests::fixture",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 49,
+      "file": "src/cuda.rs",
+      "line": 597,
+      "symbol": "tests::version_macro_round_trips",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 50,
+      "file": "src/cuda.rs",
+      "line": 650,
+      "symbol": "tests::msvc_range_is_half_open",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 51,
+      "file": "src/cuda.rs",
+      "line": 667,
+      "symbol": "tests::msvc_guard_is_parsed_from_the_header_form",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 52,
+      "file": "src/cuda.rs",
+      "line": 692,
+      "symbol": "tests::fake_toolkit",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 53,
+      "file": "src/cuda.rs",
+      "line": 711,
+      "symbol": "tests::a_root_without_nvcc_is_not_a_toolkit",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 54,
+      "file": "src/cuda.rs",
+      "line": 727,
+      "symbol": "tests::any_major_version_is_read_the_same_way",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 55,
+      "file": "src/cuda.rs",
+      "line": 755,
+      "symbol": "tests::the_header_outranks_the_directory_name",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 56,
+      "file": "src/cuda.rs",
+      "line": 771,
+      "symbol": "tests::version_macro_name_must_match_exactly",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 57,
+      "file": "src/cuda.rs",
+      "line": 786,
+      "symbol": "tests::explicit_older_root_outranks_newer_inventory",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 58,
+      "file": "src/cuda.rs",
+      "line": 816,
+      "symbol": "tests::invalid_explicit_root_never_uses_valid_search_or_lower_alias",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 59,
+      "file": "src/cuda.rs",
+      "line": 958,
+      "symbol": "tests::root_alias_priority_skips_only_empty_values",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 60,
+      "file": "src/cuda.rs",
+      "line": 979,
+      "symbol": "tests::bin_directories_follow_the_host_platform",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 61,
+      "file": "src/cuda.rs",
+      "line": 995,
+      "symbol": "tests::windows_libraries_require_matching_target_and_link_files",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 62,
+      "file": "src/cuda.rs",
+      "line": 1039,
+      "symbol": "tests::linux_tagged_libraries_do_not_fall_back_across_targets",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 63,
+      "file": "src/cuda.rs",
+      "line": 1073,
+      "symbol": "tests::elf",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 64,
+      "file": "src/cuda.rs",
+      "line": 1093,
+      "symbol": "tests::linux_legacy_lib64_requires_native_elf_link_evidence",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 65,
+      "file": "src/cuda.rs",
+      "line": 1126,
+      "symbol": "tests::pe",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 66,
+      "file": "src/cuda.rs",
+      "line": 1142,
+      "symbol": "tests::linux_tagged_runtime_evidence_is_separate_from_link_evidence",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 67,
+      "file": "src/cuda.rs",
+      "line": 1180,
+      "symbol": "tests::linux_legacy_runtime_requires_native_target_and_binary",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 68,
+      "file": "src/cuda.rs",
+      "line": 1213,
+      "symbol": "tests::windows_runtime_requires_matching_pe_and_eligible_bin_candidate",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 69,
+      "file": "src/cuda.rs",
+      "line": 1262,
+      "symbol": "tests::nvcc_file_symlink_resolves_before_deriving_the_root",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 70,
+      "file": "src/optix.rs",
+      "line": 40,
+      "symbol": "OptixVersion",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 71,
+      "file": "src/optix.rs",
+      "line": 41,
+      "symbol": "OptixVersion.major",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 72,
+      "file": "src/optix.rs",
+      "line": 42,
+      "symbol": "OptixVersion.minor",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 73,
+      "file": "src/optix.rs",
+      "line": 43,
+      "symbol": "OptixVersion.micro",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 74,
+      "file": "src/optix.rs",
+      "line": 48,
+      "symbol": "OptixVersion::from_macro",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 75,
+      "file": "src/optix.rs",
+      "line": 57,
+      "symbol": "OptixVersion::to_macro",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 76,
+      "file": "src/optix.rs",
+      "line": 78,
+      "symbol": "OptixVersion::fmt",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 77,
+      "file": "src/optix.rs",
+      "line": 85,
+      "symbol": "OptixInfo",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 78,
+      "file": "src/optix.rs",
+      "line": 87,
+      "symbol": "OptixInfo.root",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 79,
+      "file": "src/optix.rs",
+      "line": 88,
+      "symbol": "OptixInfo.version",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 80,
+      "file": "src/optix.rs",
+      "line": 90,
+      "symbol": "OptixInfo.abi",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 81,
+      "file": "src/optix.rs",
+      "line": 92,
+      "symbol": "OptixInfo.device_impl",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 82,
+      "file": "src/optix.rs",
+      "line": 97,
+      "symbol": "OptixInfo::include_dir",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 83,
+      "file": "src/optix.rs",
+      "line": 105,
+      "symbol": "ROOT_VARS",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 84,
+      "file": "src/optix.rs",
+      "line": 108,
+      "symbol": "root_vars",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 85,
+      "file": "src/optix.rs",
+      "line": 114,
+      "symbol": "requested_root",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 86,
+      "file": "src/optix.rs",
+      "line": 123,
+      "symbol": "probe",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 87,
+      "file": "src/optix.rs",
+      "line": 141,
+      "symbol": "read_define",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 88,
+      "file": "src/optix.rs",
+      "line": 156,
+      "symbol": "list_sdks",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 89,
+      "file": "src/optix.rs",
+      "line": 160,
+      "symbol": "inventory_with",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 90,
+      "file": "src/optix.rs",
+      "line": 182,
+      "symbol": "detect_optix",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 91,
+      "file": "src/optix.rs",
+      "line": 186,
+      "symbol": "detect_with",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 92,
+      "file": "src/optix.rs",
+      "line": 197,
+      "symbol": "standard_roots",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 93,
+      "file": "src/optix.rs",
+      "line": 221,
+      "symbol": "subdirs_matching",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 94,
+      "file": "src/optix.rs",
+      "line": 233,
+      "symbol": "tests",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 95,
+      "file": "src/optix.rs",
+      "line": 301,
+      "symbol": "tests::fake_sdk",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 96,
+      "file": "src/optix.rs",
+      "line": 323,
+      "symbol": "tests::explicit_older_root_wins_over_newer_inventory",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 97,
+      "file": "src/optix.rs",
+      "line": 352,
+      "symbol": "tests::invalid_explicit_root_rejects_selection_but_inventory_keeps_alternatives",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 98,
+      "file": "src/optix.rs",
+      "line": 368,
+      "symbol": "tests::version_macro_round_trips",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 99,
+      "file": "src/optix.rs",
+      "line": 451,
+      "symbol": "tests::a_define_prefix_does_not_match_a_longer_name",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 100,
+      "file": "src/optix.rs",
+      "line": 477,
+      "symbol": "tests::a_root_without_the_function_table_header_is_not_an_sdk",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 101,
+      "file": "src/optix.rs",
+      "line": 487,
+      "symbol": "tests::the_header_outranks_the_directory_name_and_device_impl_is_reported",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 102,
+      "file": "src/nvsdk.rs",
+      "line": 8,
+      "symbol": "SEARCH_DEPTH",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 103,
+      "file": "src/nvsdk.rs",
+      "line": 12,
+      "symbol": "Kind",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 104,
+      "file": "src/nvsdk.rs",
+      "line": 13,
+      "symbol": "Kind::Cudnn",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 105,
+      "file": "src/nvsdk.rs",
+      "line": 14,
+      "symbol": "Kind::VideoCodec",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 106,
+      "file": "src/nvsdk.rs",
+      "line": 15,
+      "symbol": "Kind::OpticalFlow",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 107,
+      "file": "src/nvsdk.rs",
+      "line": 16,
+      "symbol": "Kind::Nvapi",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 108,
+      "file": "src/nvsdk.rs",
+      "line": 17,
+      "symbol": "Kind::Ngx",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 109,
+      "file": "src/nvsdk.rs",
+      "line": 18,
+      "symbol": "Kind::Nvcomp",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 110,
+      "file": "src/nvsdk.rs",
+      "line": 19,
+      "symbol": "Kind::Nccl",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 111,
+      "file": "src/nvsdk.rs",
+      "line": 24,
+      "symbol": "Kind::ALL",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 112,
+      "file": "src/nvsdk.rs",
+      "line": 34,
+      "symbol": "Kind::name",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 113,
+      "file": "src/nvsdk.rs",
+      "line": 47,
+      "symbol": "Kind::root_vars",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 114,
+      "file": "src/nvsdk.rs",
+      "line": 60,
+      "symbol": "Kind::requested_root",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 115,
+      "file": "src/nvsdk.rs",
+      "line": 65,
+      "symbol": "Kind::is_supported",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 116,
+      "file": "src/nvsdk.rs",
+      "line": 73,
+      "symbol": "Kind::marker",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 117,
+      "file": "src/nvsdk.rs",
+      "line": 85,
+      "symbol": "Kind::version_define",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 118,
+      "file": "src/nvsdk.rs",
+      "line": 115,
+      "symbol": "Kind::include_subdirs",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 119,
+      "file": "src/nvsdk.rs",
+      "line": 127,
+      "symbol": "SdkInfo",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "FAIL_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 120,
+      "file": "src/nvsdk.rs",
+      "line": 128,
+      "symbol": "SdkInfo.kind",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 121,
+      "file": "src/nvsdk.rs",
+      "line": 129,
+      "symbol": "SdkInfo.target",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 122,
+      "file": "src/nvsdk.rs",
+      "line": 130,
+      "symbol": "SdkInfo.root",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 123,
+      "file": "src/nvsdk.rs",
+      "line": 131,
+      "symbol": "SdkInfo.include_dir",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 124,
+      "file": "src/nvsdk.rs",
+      "line": 132,
+      "symbol": "SdkInfo.runtime_dir",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 125,
+      "file": "src/nvsdk.rs",
+      "line": 133,
+      "symbol": "SdkInfo.lib_dir",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "FAIL_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 126,
+      "file": "src/nvsdk.rs",
+      "line": 134,
+      "symbol": "SdkInfo.version",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 127,
+      "file": "src/nvsdk.rs",
+      "line": 138,
+      "symbol": "probe",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "FAIL_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 128,
+      "file": "src/nvsdk.rs",
+      "line": 142,
+      "symbol": "selected_cuda",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 129,
+      "file": "src/nvsdk.rs",
+      "line": 154,
+      "symbol": "probe_with",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "FAIL_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 130,
+      "file": "src/nvsdk.rs",
+      "line": 179,
+      "symbol": "include_dir",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 131,
+      "file": "src/nvsdk.rs",
+      "line": 203,
+      "symbol": "pick_cuda_versioned",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 132,
+      "file": "src/nvsdk.rs",
+      "line": 221,
+      "symbol": "native_tags",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 133,
+      "file": "src/nvsdk.rs",
+      "line": 232,
+      "symbol": "relevant_library",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 134,
+      "file": "src/nvsdk.rs",
+      "line": 246,
+      "symbol": "has_library",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "FAIL_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 135,
+      "file": "src/nvsdk.rs",
+      "line": 289,
+      "symbol": "runtime_dirs",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "FAIL_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 136,
+      "file": "src/nvsdk.rs",
+      "line": 374,
+      "symbol": "read_version",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 137,
+      "file": "src/nvsdk.rs",
+      "line": 383,
+      "symbol": "read_define",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 138,
+      "file": "src/nvsdk.rs",
+      "line": 395,
+      "symbol": "search_parents",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 139,
+      "file": "src/nvsdk.rs",
+      "line": 415,
+      "symbol": "list",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "FAIL_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 140,
+      "file": "src/nvsdk.rs",
+      "line": 420,
+      "symbol": "list_with",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "FAIL_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 141,
+      "file": "src/nvsdk.rs",
+      "line": 430,
+      "symbol": "inventory",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "FAIL_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 142,
+      "file": "src/nvsdk.rs",
+      "line": 477,
+      "symbol": "detect",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "FAIL_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 143,
+      "file": "src/nvsdk.rs",
+      "line": 487,
+      "symbol": "detect_with",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "FAIL_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 144,
+      "file": "src/nvsdk.rs",
+      "line": 502,
+      "symbol": "matches_installed_cuda",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 145,
+      "file": "src/nvsdk.rs",
+      "line": 522,
+      "symbol": "numeric_part",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 146,
+      "file": "src/nvsdk.rs",
+      "line": 537,
+      "symbol": "version_key",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 147,
+      "file": "src/nvsdk.rs",
+      "line": 542,
+      "symbol": "walk",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 148,
+      "file": "src/nvsdk.rs",
+      "line": 567,
+      "symbol": "tests",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "REGRESSION_GAP",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 149,
+      "file": "src/nvsdk.rs",
+      "line": 571,
+      "symbol": "tests::NEXT_FIXTURE",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 150,
+      "file": "src/nvsdk.rs",
+      "line": 573,
+      "symbol": "tests::Fixture",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 151,
+      "file": "src/nvsdk.rs",
+      "line": 573,
+      "symbol": "tests::Fixture.0",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 152,
+      "file": "src/nvsdk.rs",
+      "line": 576,
+      "symbol": "tests::Fixture::new",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 153,
+      "file": "src/nvsdk.rs",
+      "line": 594,
+      "symbol": "tests::Fixture::drop",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 154,
+      "file": "src/nvsdk.rs",
+      "line": 605,
+      "symbol": "tests::write",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 155,
+      "file": "src/nvsdk.rs",
+      "line": 609,
+      "symbol": "tests::write_bytes",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 156,
+      "file": "src/nvsdk.rs",
+      "line": 614,
+      "symbol": "tests::elf",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 157,
+      "file": "src/nvsdk.rs",
+      "line": 629,
+      "symbol": "tests::pe",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 158,
+      "file": "src/nvsdk.rs",
+      "line": 643,
+      "symbol": "tests::cudnn",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 159,
+      "file": "src/nvsdk.rs",
+      "line": 659,
+      "symbol": "tests::cudnn_versioned_layout_is_found_under_a_parent",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 160,
+      "file": "src/nvsdk.rs",
+      "line": 681,
+      "symbol": "tests::header_only_sdks_report_their_header_directory_and_version",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 161,
+      "file": "src/nvsdk.rs",
+      "line": 706,
+      "symbol": "tests::a_define_prefix_does_not_match_a_longer_name",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 162,
+      "file": "src/nvsdk.rs",
+      "line": 738,
+      "symbol": "tests::invalid_explicit_root_never_selects_an_alternative",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 163,
+      "file": "src/nvsdk.rs",
+      "line": 780,
+      "symbol": "tests::named_roots_and_cuda_compatibility_have_separate_precedence",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 164,
+      "file": "src/nvsdk.rs",
+      "line": 824,
+      "symbol": "tests::nvcomp_major_layout_uses_selected_cuda_and_verified_architecture",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "REGRESSION_GAP",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 165,
+      "file": "src/nvsdk.rs",
+      "line": 880,
+      "symbol": "tests::flat_libraries_require_physical_target_headers",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 166,
+      "file": "src/nvsdk.rs",
+      "line": 936,
+      "symbol": "tests::tagged_dynamic_files_still_require_native_binary_headers",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 167,
+      "file": "src/nvsdk.rs",
+      "line": 981,
+      "symbol": "tests::linux_cudnn_uses_flat_or_multiarch_headers",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 168,
+      "file": "src/nvsdk.rs",
+      "line": 1110,
+      "symbol": "tests::tagged_sdk_folders_respect_platform_and_target",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "REGRESSION_GAP",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 169,
+      "file": "src/nvsdk.rs",
+      "line": 1278,
+      "symbol": "tests::nccl_versioned_soname_is_sufficient_native_library_evidence",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 170,
+      "file": "src/nvsdk.rs",
+      "line": 1408,
+      "symbol": "tests::nvapi_is_unsupported_on_linux_even_with_headers",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 171,
+      "file": "src/discovery.rs",
+      "line": 13,
+      "symbol": "RootRequest",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 172,
+      "file": "src/discovery.rs",
+      "line": 15,
+      "symbol": "RootRequest.variable",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 173,
+      "file": "src/discovery.rs",
+      "line": 17,
+      "symbol": "RootRequest.path",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 174,
+      "file": "src/discovery.rs",
+      "line": 21,
+      "symbol": "first_root",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 175,
+      "file": "src/discovery.rs",
+      "line": 27,
+      "symbol": "first_root_with",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 176,
+      "file": "src/discovery.rs",
+      "line": 47,
+      "symbol": "binary_arch",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 177,
+      "file": "src/discovery.rs",
+      "line": 354,
+      "symbol": "tests",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 178,
+      "file": "src/discovery.rs",
+      "line": 358,
+      "symbol": "tests::NEXT_FIXTURE",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 179,
+      "file": "src/discovery.rs",
+      "line": 360,
+      "symbol": "tests::check_binary",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 180,
+      "file": "src/discovery.rs",
+      "line": 373,
+      "symbol": "tests::elf",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 181,
+      "file": "src/discovery.rs",
+      "line": 383,
+      "symbol": "tests::pe",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 182,
+      "file": "src/discovery.rs",
+      "line": 695,
+      "symbol": "tests::elf_machine_class_and_encoding_must_agree",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 183,
+      "file": "src/discovery.rs",
+      "line": 717,
+      "symbol": "tests::pe_machine_and_checked_header_bounds_are_required",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 184,
+      "file": "src/discovery.rs",
+      "line": 739,
+      "symbol": "tests::first_nonempty_root_is_authoritative_even_when_invalid",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 185,
+      "file": "src/discovery.rs",
+      "line": 759,
+      "symbol": "tests::root_values_are_preserved_without_trimming_or_unicode_conversion",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11a full84"
+    },
+    {
+      "id": 186,
+      "file": "src/optix.rs",
+      "line": 238,
+      "symbol": "NEXT_FIXTURE",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 187,
+      "file": "src/optix.rs",
+      "line": 240,
+      "symbol": "Fixture",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 188,
+      "file": "src/optix.rs",
+      "line": 240,
+      "symbol": "tests::Fixture.0",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 189,
+      "file": "src/optix.rs",
+      "line": 243,
+      "symbol": "new",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 190,
+      "file": "src/optix.rs",
+      "line": 261,
+      "symbol": "drop",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 191,
+      "file": "src/optix.rs",
+      "line": 279,
+      "symbol": "fixture_roots_are_unique_and_cleanup_is_owned",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 192,
+      "file": "src/nvsdk.rs",
+      "line": 1164,
+      "symbol": "ngx_windows_package_paths_preserve_target_and_release_precedence",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "REGRESSION_GAP",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 193,
+      "file": "src/nvsdk.rs",
+      "line": 1226,
+      "symbol": "ngx_linux_package_paths_preserve_target_and_release_precedence",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "REGRESSION_GAP",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 194,
+      "file": "src/nvsdk.rs",
+      "line": 1337,
+      "symbol": "video_codec_windows_imports_are_link_only_and_target_specific",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "REGRESSION_GAP",
+      "initialReview": "D11b full111"
+    },
+    {
+      "id": 195,
+      "file": "src/nvsdk.rs",
+      "line": 1369,
+      "symbol": "video_codec_linux_stubs_are_link_only_and_require_native_target",
+      "anchorQualification": "freeze2 lookup, not historical review anchor",
+      "initialVerdict": "PASS_STATIC",
+      "initialReview": "D11b full111"
+    }
+  ],
+  "execution": "No build/check/test run; source-only initial verdict. Four concrete defects accepted by root and repair source written before freeze2."
+}

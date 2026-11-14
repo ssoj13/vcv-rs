@@ -1,0 +1,2116 @@
+{
+  "qualification": "Coordinator-normalized final per-ID ledger after full independent freeze2 source audits. Not a verbatim raw transcript. D11a reviewer initial narrower metadata approval is superseded by root acceptance of concrete bounds-contract gap; fresh repair/review required. Execution pending.",
+  "sourceFreeze": {
+    "state": "formatted-source-only;D11-four-finding-repair-written;unexecuted",
+    "files": [
+      {
+        "path": "src/cuda.rs",
+        "lines": 1277,
+        "sha256": "a1aef9ae1e89894f001b551ff7022703275b098a903422187233e2d2d1621fbc"
+      },
+      {
+        "path": "src/optix.rs",
+        "lines": 498,
+        "sha256": "0c25bfb1179d389cbd0b934203381bc09eca90d72d273b4a4eca2b58446c7806"
+      },
+      {
+        "path": "src/nvsdk.rs",
+        "lines": 1418,
+        "sha256": "3574f3e1635afbed421b41f93de1b695da722803097c0b055158df41848beb57"
+      },
+      {
+        "path": "src/discovery.rs",
+        "lines": 780,
+        "sha256": "93c932e0ed2b5b53273e43673873367e7a3ac2e033a4db2533b1ca5bdff94ef4"
+      },
+      {
+        "path": "src/env.rs",
+        "lines": 1007,
+        "sha256": "4a9a7d18b59c8ee5f48b1f156816578d896b7b99f224b8e8df08ad8186726572"
+      },
+      {
+        "path": "src/format.rs",
+        "lines": 685,
+        "sha256": "60b9a806211e74d55e068e859459678d72023c34dc67e3b38d1565fe4238af38"
+      },
+      {
+        "path": "tests/format_roundtrip.rs",
+        "lines": 696,
+        "sha256": "67c64339eadc62f1392a5417a09ee640374cbdf4a39421711e70bf662dd998ec"
+      },
+      {
+        "path": "Cargo.toml",
+        "lines": 43,
+        "sha256": "aefbc68bdc68fc6e8ce8b4d3d87528bc31ad7418f9c0e26bb3399623cdef91a4"
+      },
+      {
+        "path": "Cargo.lock",
+        "lines": 277,
+        "sha256": "a7be3f43bdcbac43e8d35aab8f488a902c917712c302600736e90011c1b99294"
+      }
+    ]
+  },
+  "domains": {
+    "D11a": {
+      "lines": 2057,
+      "rows": 106,
+      "reviewer": "/root/vcv_d11/d11a_closure2",
+      "ranges": {
+        "cuda.rs": [
+          "1-251",
+          "252-461",
+          "462-575",
+          "576-835",
+          "836-994",
+          "995-1277"
+        ],
+        "discovery.rs": [
+          "1-102",
+          "103-281",
+          "282-424",
+          "425-561",
+          "562-694",
+          "695-780"
+        ]
+      }
+    },
+    "D11b": {
+      "lines": 1916,
+      "rows": 113,
+      "reviewer": "/root/vcv_d11/d11b_closure2",
+      "ranges": {
+        "optix.rs": [
+          "1-232",
+          "233-498"
+        ],
+        "nvsdk.rs": [
+          "1-245",
+          "246-373",
+          "374-566",
+          "567-823",
+          "824-1007",
+          "1008-1163",
+          "1164-1336",
+          "1337-1418"
+        ]
+      }
+    }
+  },
+  "findings": [
+    {
+      "id": "D11a-D1",
+      "state": "CLOSED_STATIC",
+      "evidence": "cuda446-450 + regression836-854 skip stale first PATH candidate; invalid explicit root never scans."
+    },
+    {
+      "id": "D11a-D2",
+      "state": "CLOSED_STATIC",
+      "evidence": "cuda476-480 prefixes + regression859-954 isolate each real omitted family."
+    },
+    {
+      "id": "D11b-D1",
+      "state": "CLOSED_STATIC",
+      "evidence": "nvsdk246-285 requires canonical native archive evidence; regression1008-1057 removes tagged/name bypass."
+    },
+    {
+      "id": "D11b-D2",
+      "state": "CLOSED_STATIC",
+      "evidence": "nvsdk369-371 independent runtime/link selectors; regression1062-1106 no DLL prerequisite or foreign import override."
+    },
+    {
+      "id": "D11a-Bounds2",
+      "state": "OPEN_ACCEPTED_BY_ROOT",
+      "evidence": "discovery100 claims declared table/payload extents; COFF test_object60bytes mutated SizeOfRawData1/PointerToRawDataUINTMAX is accepted; header-declared COFFsection/ELFfile-backedsection/program physical ranges need validation, preserving NOBITS/zero-data semantics.",
+      "scope": "No full relocation/symbol contents/ABI/linker proof; short-import string terminators remain explicit limit."
+    }
+  ],
+  "questions": {
+    "Q1": "No unfinished supported Windows/Linux branch. CUDA435 TODO concerns unestablished other platforms. Minimal runtime headers are architecture fixtures, not loadable libraries.",
+    "Q2": "CLI/environment/nv-bindgen production chains verified. Exact object0.40 features pe=>coff, archive/read_core/elf/std available. No feature combination executed. Public metadata utilities may have no local production use.",
+    "Q3": "Option rejection fails closed; checked math and physical EOF before member range. Explicit root cannot downgrade. Bounds2 remains accepted open gap.",
+    "Q4": "All original4 counterexamples close. Empty/thin/mixed/foreign/truncated archive/header/table negative source cases present; inner physical data extents gap remains.",
+    "Q5": "Cold discovery only. Ordinary object member reads fixed headers, not whole payload. Canonical // names metadata can load full physically bounded member; cache stores header blocks O(member count), no constant/global memory budget.",
+    "Q6": "Owned metadata/scalar enums; no C/GPU/SIMD boundary or relevant alignment requirement.",
+    "Q7": "Local File/ReadCache/readref lifetimes, actual cache semantics checked. Passive architecture evidence does not prove link/load/ABI; filesystem snapshot can change. CudaInfo.nvcc absolute wording exceeds relative probe behavior."
+  },
+  "rows": [
+    {
+      "id": 1,
+      "file": "src/cuda.rs",
+      "line": 44,
+      "symbol": "CudaVersion",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 2,
+      "file": "src/cuda.rs",
+      "line": 45,
+      "symbol": "CudaVersion.major",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 3,
+      "file": "src/cuda.rs",
+      "line": 46,
+      "symbol": "CudaVersion.minor",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 4,
+      "file": "src/cuda.rs",
+      "line": 51,
+      "symbol": "CudaVersion::from_macro",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 5,
+      "file": "src/cuda.rs",
+      "line": 59,
+      "symbol": "CudaVersion::to_macro",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 6,
+      "file": "src/cuda.rs",
+      "line": 76,
+      "symbol": "CudaVersion::fmt",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 7,
+      "file": "src/cuda.rs",
+      "line": 90,
+      "symbol": "MsvcRange",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 8,
+      "file": "src/cuda.rs",
+      "line": 91,
+      "symbol": "MsvcRange.min",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 9,
+      "file": "src/cuda.rs",
+      "line": 92,
+      "symbol": "MsvcRange.max_exclusive",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 10,
+      "file": "src/cuda.rs",
+      "line": 97,
+      "symbol": "MsvcRange::accepts",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 11,
+      "file": "src/cuda.rs",
+      "line": 106,
+      "symbol": "MsvcRange::max_vs_year",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 12,
+      "file": "src/cuda.rs",
+      "line": 111,
+      "symbol": "MsvcRange::min_vs_year",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 13,
+      "file": "src/cuda.rs",
+      "line": 121,
+      "symbol": "vs_year_for_msc",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 14,
+      "file": "src/cuda.rs",
+      "line": 133,
+      "symbol": "CudaInfo",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 15,
+      "file": "src/cuda.rs",
+      "line": 135,
+      "symbol": "CudaInfo.root",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 16,
+      "file": "src/cuda.rs",
+      "line": 136,
+      "symbol": "CudaInfo.version",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 17,
+      "file": "src/cuda.rs",
+      "line": 138,
+      "symbol": "CudaInfo.nvcc",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC_DOC_QUALIFICATION",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 18,
+      "file": "src/cuda.rs",
+      "line": 141,
+      "symbol": "CudaInfo.msvc",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 19,
+      "file": "src/cuda.rs",
+      "line": 148,
+      "symbol": "CudaInfo::bin_dirs",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 20,
+      "file": "src/cuda.rs",
+      "line": 156,
+      "symbol": "CudaInfo::include_dir",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 21,
+      "file": "src/cuda.rs",
+      "line": 165,
+      "symbol": "CudaInfo::lib_dir",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 22,
+      "file": "src/cuda.rs",
+      "line": 205,
+      "symbol": "CudaInfo::runtime_dir",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 23,
+      "file": "src/cuda.rs",
+      "line": 241,
+      "symbol": "CudaInfo::versioned_var",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 24,
+      "file": "src/cuda.rs",
+      "line": 252,
+      "symbol": "ROOT_VARS",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 25,
+      "file": "src/cuda.rs",
+      "line": 260,
+      "symbol": "root_vars",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 26,
+      "file": "src/cuda.rs",
+      "line": 265,
+      "symbol": "requested_root",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 27,
+      "file": "src/cuda.rs",
+      "line": 274,
+      "symbol": "probe",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 28,
+      "file": "src/cuda.rs",
+      "line": 292,
+      "symbol": "NVCC Windows",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 29,
+      "file": "src/cuda.rs",
+      "line": 294,
+      "symbol": "NVCC otherhosts",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 30,
+      "file": "src/cuda.rs",
+      "line": 297,
+      "symbol": "read_version",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 31,
+      "file": "src/cuda.rs",
+      "line": 314,
+      "symbol": "read_msvc_range",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 32,
+      "file": "src/cuda.rs",
+      "line": 346,
+      "symbol": "list_toolkits",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 33,
+      "file": "src/cuda.rs",
+      "line": 350,
+      "symbol": "searched_roots",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 34,
+      "file": "src/cuda.rs",
+      "line": 358,
+      "symbol": "inventory_with",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 35,
+      "file": "src/cuda.rs",
+      "line": 375,
+      "symbol": "detect_cuda",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 36,
+      "file": "src/cuda.rs",
+      "line": 379,
+      "symbol": "detect_with",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 37,
+      "file": "src/cuda.rs",
+      "line": 390,
+      "symbol": "standard_roots",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 38,
+      "file": "src/cuda.rs",
+      "line": 441,
+      "symbol": "nvcc_on_path",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 39,
+      "file": "src/cuda.rs",
+      "line": 453,
+      "symbol": "nvcc_root_from_file",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 40,
+      "file": "src/cuda.rs",
+      "line": 462,
+      "symbol": "is_cuda_family",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 41,
+      "file": "src/cuda.rs",
+      "line": 495,
+      "symbol": "is_cuda_library",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 42,
+      "file": "src/cuda.rs",
+      "line": 507,
+      "symbol": "is_cuda_runtime_file",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 43,
+      "file": "src/cuda.rs",
+      "line": 520,
+      "symbol": "has_cuda_runtime_file",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 44,
+      "file": "src/cuda.rs",
+      "line": 533,
+      "symbol": "has_cuda_link_file",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 45,
+      "file": "src/cuda.rs",
+      "line": 560,
+      "symbol": "has_native_cuda_library",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 46,
+      "file": "src/cuda.rs",
+      "line": 576,
+      "symbol": "tests",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 47,
+      "file": "src/cuda.rs",
+      "line": 580,
+      "symbol": "tests::NEXT_FIXTURE",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 48,
+      "file": "src/cuda.rs",
+      "line": 582,
+      "symbol": "tests::fixture",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 49,
+      "file": "src/cuda.rs",
+      "line": 597,
+      "symbol": "tests::version_macro_round_trips",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 50,
+      "file": "src/cuda.rs",
+      "line": 650,
+      "symbol": "tests::msvc_range_is_half_open",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 51,
+      "file": "src/cuda.rs",
+      "line": 667,
+      "symbol": "tests::msvc_guard_is_parsed_from_the_header_form",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 52,
+      "file": "src/cuda.rs",
+      "line": 692,
+      "symbol": "tests::fake_toolkit",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 53,
+      "file": "src/cuda.rs",
+      "line": 711,
+      "symbol": "tests::a_root_without_nvcc_is_not_a_toolkit",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 54,
+      "file": "src/cuda.rs",
+      "line": 727,
+      "symbol": "tests::any_major_version_is_read_the_same_way",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 55,
+      "file": "src/cuda.rs",
+      "line": 755,
+      "symbol": "tests::the_header_outranks_the_directory_name",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 56,
+      "file": "src/cuda.rs",
+      "line": 771,
+      "symbol": "tests::version_macro_name_must_match_exactly",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 57,
+      "file": "src/cuda.rs",
+      "line": 786,
+      "symbol": "tests::explicit_older_root_outranks_newer_inventory",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 58,
+      "file": "src/cuda.rs",
+      "line": 816,
+      "symbol": "tests::invalid_explicit_root_never_uses_valid_search_or_lower_alias",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 59,
+      "file": "src/cuda.rs",
+      "line": 958,
+      "symbol": "tests::root_alias_priority_skips_only_empty_values",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 60,
+      "file": "src/cuda.rs",
+      "line": 979,
+      "symbol": "tests::bin_directories_follow_the_host_platform",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 61,
+      "file": "src/cuda.rs",
+      "line": 995,
+      "symbol": "tests::windows_libraries_require_matching_target_and_link_files",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 62,
+      "file": "src/cuda.rs",
+      "line": 1039,
+      "symbol": "tests::linux_tagged_libraries_do_not_fall_back_across_targets",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 63,
+      "file": "src/cuda.rs",
+      "line": 1073,
+      "symbol": "tests::elf",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 64,
+      "file": "src/cuda.rs",
+      "line": 1093,
+      "symbol": "tests::linux_legacy_lib64_requires_native_elf_link_evidence",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 65,
+      "file": "src/cuda.rs",
+      "line": 1126,
+      "symbol": "tests::pe",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 66,
+      "file": "src/cuda.rs",
+      "line": 1142,
+      "symbol": "tests::linux_tagged_runtime_evidence_is_separate_from_link_evidence",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 67,
+      "file": "src/cuda.rs",
+      "line": 1180,
+      "symbol": "tests::linux_legacy_runtime_requires_native_target_and_binary",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 68,
+      "file": "src/cuda.rs",
+      "line": 1213,
+      "symbol": "tests::windows_runtime_requires_matching_pe_and_eligible_bin_candidate",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 69,
+      "file": "src/cuda.rs",
+      "line": 1262,
+      "symbol": "tests::nvcc_file_symlink_resolves_before_deriving_the_root",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 70,
+      "file": "src/optix.rs",
+      "line": 40,
+      "symbol": "OptixVersion",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 71,
+      "file": "src/optix.rs",
+      "line": 41,
+      "symbol": "OptixVersion.major",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 72,
+      "file": "src/optix.rs",
+      "line": 42,
+      "symbol": "OptixVersion.minor",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 73,
+      "file": "src/optix.rs",
+      "line": 43,
+      "symbol": "OptixVersion.micro",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 74,
+      "file": "src/optix.rs",
+      "line": 48,
+      "symbol": "OptixVersion::from_macro",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 75,
+      "file": "src/optix.rs",
+      "line": 57,
+      "symbol": "OptixVersion::to_macro",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 76,
+      "file": "src/optix.rs",
+      "line": 78,
+      "symbol": "OptixVersion::fmt",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 77,
+      "file": "src/optix.rs",
+      "line": 85,
+      "symbol": "OptixInfo",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 78,
+      "file": "src/optix.rs",
+      "line": 87,
+      "symbol": "OptixInfo.root",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 79,
+      "file": "src/optix.rs",
+      "line": 88,
+      "symbol": "OptixInfo.version",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 80,
+      "file": "src/optix.rs",
+      "line": 90,
+      "symbol": "OptixInfo.abi",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 81,
+      "file": "src/optix.rs",
+      "line": 92,
+      "symbol": "OptixInfo.device_impl",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 82,
+      "file": "src/optix.rs",
+      "line": 97,
+      "symbol": "OptixInfo::include_dir",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 83,
+      "file": "src/optix.rs",
+      "line": 105,
+      "symbol": "ROOT_VARS",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 84,
+      "file": "src/optix.rs",
+      "line": 108,
+      "symbol": "root_vars",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 85,
+      "file": "src/optix.rs",
+      "line": 114,
+      "symbol": "requested_root",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 86,
+      "file": "src/optix.rs",
+      "line": 123,
+      "symbol": "probe",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 87,
+      "file": "src/optix.rs",
+      "line": 141,
+      "symbol": "read_define",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 88,
+      "file": "src/optix.rs",
+      "line": 156,
+      "symbol": "list_sdks",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 89,
+      "file": "src/optix.rs",
+      "line": 160,
+      "symbol": "inventory_with",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 90,
+      "file": "src/optix.rs",
+      "line": 182,
+      "symbol": "detect_optix",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 91,
+      "file": "src/optix.rs",
+      "line": 186,
+      "symbol": "detect_with",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 92,
+      "file": "src/optix.rs",
+      "line": 197,
+      "symbol": "standard_roots",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 93,
+      "file": "src/optix.rs",
+      "line": 221,
+      "symbol": "subdirs_matching",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 94,
+      "file": "src/optix.rs",
+      "line": 233,
+      "symbol": "tests",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 95,
+      "file": "src/optix.rs",
+      "line": 301,
+      "symbol": "tests::fake_sdk",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 96,
+      "file": "src/optix.rs",
+      "line": 323,
+      "symbol": "tests::explicit_older_root_wins_over_newer_inventory",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 97,
+      "file": "src/optix.rs",
+      "line": 352,
+      "symbol": "tests::invalid_explicit_root_rejects_selection_but_inventory_keeps_alternatives",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 98,
+      "file": "src/optix.rs",
+      "line": 368,
+      "symbol": "tests::version_macro_round_trips",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 99,
+      "file": "src/optix.rs",
+      "line": 451,
+      "symbol": "tests::a_define_prefix_does_not_match_a_longer_name",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 100,
+      "file": "src/optix.rs",
+      "line": 477,
+      "symbol": "tests::a_root_without_the_function_table_header_is_not_an_sdk",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 101,
+      "file": "src/optix.rs",
+      "line": 487,
+      "symbol": "tests::the_header_outranks_the_directory_name_and_device_impl_is_reported",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 102,
+      "file": "src/nvsdk.rs",
+      "line": 8,
+      "symbol": "SEARCH_DEPTH",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 103,
+      "file": "src/nvsdk.rs",
+      "line": 12,
+      "symbol": "Kind",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 104,
+      "file": "src/nvsdk.rs",
+      "line": 13,
+      "symbol": "Kind::Cudnn",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 105,
+      "file": "src/nvsdk.rs",
+      "line": 14,
+      "symbol": "Kind::VideoCodec",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 106,
+      "file": "src/nvsdk.rs",
+      "line": 15,
+      "symbol": "Kind::OpticalFlow",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 107,
+      "file": "src/nvsdk.rs",
+      "line": 16,
+      "symbol": "Kind::Nvapi",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 108,
+      "file": "src/nvsdk.rs",
+      "line": 17,
+      "symbol": "Kind::Ngx",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 109,
+      "file": "src/nvsdk.rs",
+      "line": 18,
+      "symbol": "Kind::Nvcomp",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 110,
+      "file": "src/nvsdk.rs",
+      "line": 19,
+      "symbol": "Kind::Nccl",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 111,
+      "file": "src/nvsdk.rs",
+      "line": 24,
+      "symbol": "Kind::ALL",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 112,
+      "file": "src/nvsdk.rs",
+      "line": 34,
+      "symbol": "Kind::name",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 113,
+      "file": "src/nvsdk.rs",
+      "line": 47,
+      "symbol": "Kind::root_vars",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 114,
+      "file": "src/nvsdk.rs",
+      "line": 60,
+      "symbol": "Kind::requested_root",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 115,
+      "file": "src/nvsdk.rs",
+      "line": 65,
+      "symbol": "Kind::is_supported",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 116,
+      "file": "src/nvsdk.rs",
+      "line": 73,
+      "symbol": "Kind::marker",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 117,
+      "file": "src/nvsdk.rs",
+      "line": 85,
+      "symbol": "Kind::version_define",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 118,
+      "file": "src/nvsdk.rs",
+      "line": 115,
+      "symbol": "Kind::include_subdirs",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 119,
+      "file": "src/nvsdk.rs",
+      "line": 127,
+      "symbol": "SdkInfo",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 120,
+      "file": "src/nvsdk.rs",
+      "line": 128,
+      "symbol": "SdkInfo.kind",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 121,
+      "file": "src/nvsdk.rs",
+      "line": 129,
+      "symbol": "SdkInfo.target",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 122,
+      "file": "src/nvsdk.rs",
+      "line": 130,
+      "symbol": "SdkInfo.root",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 123,
+      "file": "src/nvsdk.rs",
+      "line": 131,
+      "symbol": "SdkInfo.include_dir",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 124,
+      "file": "src/nvsdk.rs",
+      "line": 132,
+      "symbol": "SdkInfo.runtime_dir",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 125,
+      "file": "src/nvsdk.rs",
+      "line": 133,
+      "symbol": "SdkInfo.lib_dir",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 126,
+      "file": "src/nvsdk.rs",
+      "line": 134,
+      "symbol": "SdkInfo.version",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 127,
+      "file": "src/nvsdk.rs",
+      "line": 138,
+      "symbol": "probe",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 128,
+      "file": "src/nvsdk.rs",
+      "line": 142,
+      "symbol": "selected_cuda",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 129,
+      "file": "src/nvsdk.rs",
+      "line": 154,
+      "symbol": "probe_with",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 130,
+      "file": "src/nvsdk.rs",
+      "line": 179,
+      "symbol": "include_dir",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 131,
+      "file": "src/nvsdk.rs",
+      "line": 203,
+      "symbol": "pick_cuda_versioned",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 132,
+      "file": "src/nvsdk.rs",
+      "line": 221,
+      "symbol": "native_tags",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 133,
+      "file": "src/nvsdk.rs",
+      "line": 232,
+      "symbol": "relevant_library",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 134,
+      "file": "src/nvsdk.rs",
+      "line": 246,
+      "symbol": "has_library",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 135,
+      "file": "src/nvsdk.rs",
+      "line": 289,
+      "symbol": "runtime_dirs",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 136,
+      "file": "src/nvsdk.rs",
+      "line": 374,
+      "symbol": "read_version",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 137,
+      "file": "src/nvsdk.rs",
+      "line": 383,
+      "symbol": "read_define",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 138,
+      "file": "src/nvsdk.rs",
+      "line": 395,
+      "symbol": "search_parents",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 139,
+      "file": "src/nvsdk.rs",
+      "line": 415,
+      "symbol": "list",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 140,
+      "file": "src/nvsdk.rs",
+      "line": 420,
+      "symbol": "list_with",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 141,
+      "file": "src/nvsdk.rs",
+      "line": 430,
+      "symbol": "inventory",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 142,
+      "file": "src/nvsdk.rs",
+      "line": 477,
+      "symbol": "detect",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 143,
+      "file": "src/nvsdk.rs",
+      "line": 487,
+      "symbol": "detect_with",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 144,
+      "file": "src/nvsdk.rs",
+      "line": 502,
+      "symbol": "matches_installed_cuda",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 145,
+      "file": "src/nvsdk.rs",
+      "line": 522,
+      "symbol": "numeric_part",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 146,
+      "file": "src/nvsdk.rs",
+      "line": 537,
+      "symbol": "version_key",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 147,
+      "file": "src/nvsdk.rs",
+      "line": 542,
+      "symbol": "walk",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 148,
+      "file": "src/nvsdk.rs",
+      "line": 567,
+      "symbol": "tests",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 149,
+      "file": "src/nvsdk.rs",
+      "line": 571,
+      "symbol": "tests::NEXT_FIXTURE",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 150,
+      "file": "src/nvsdk.rs",
+      "line": 573,
+      "symbol": "tests::Fixture",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 151,
+      "file": "src/nvsdk.rs",
+      "line": 573,
+      "symbol": "tests::Fixture.0",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 152,
+      "file": "src/nvsdk.rs",
+      "line": 576,
+      "symbol": "tests::Fixture::new",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 153,
+      "file": "src/nvsdk.rs",
+      "line": 594,
+      "symbol": "tests::Fixture::drop",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 154,
+      "file": "src/nvsdk.rs",
+      "line": 605,
+      "symbol": "tests::write",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 155,
+      "file": "src/nvsdk.rs",
+      "line": 609,
+      "symbol": "tests::write_bytes",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 156,
+      "file": "src/nvsdk.rs",
+      "line": 614,
+      "symbol": "tests::elf",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 157,
+      "file": "src/nvsdk.rs",
+      "line": 629,
+      "symbol": "tests::pe",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 158,
+      "file": "src/nvsdk.rs",
+      "line": 643,
+      "symbol": "tests::cudnn",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 159,
+      "file": "src/nvsdk.rs",
+      "line": 659,
+      "symbol": "tests::cudnn_versioned_layout_is_found_under_a_parent",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 160,
+      "file": "src/nvsdk.rs",
+      "line": 681,
+      "symbol": "tests::header_only_sdks_report_their_header_directory_and_version",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 161,
+      "file": "src/nvsdk.rs",
+      "line": 706,
+      "symbol": "tests::a_define_prefix_does_not_match_a_longer_name",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 162,
+      "file": "src/nvsdk.rs",
+      "line": 738,
+      "symbol": "tests::invalid_explicit_root_never_selects_an_alternative",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 163,
+      "file": "src/nvsdk.rs",
+      "line": 780,
+      "symbol": "tests::named_roots_and_cuda_compatibility_have_separate_precedence",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 164,
+      "file": "src/nvsdk.rs",
+      "line": 824,
+      "symbol": "tests::nvcomp_major_layout_uses_selected_cuda_and_verified_architecture",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 165,
+      "file": "src/nvsdk.rs",
+      "line": 880,
+      "symbol": "tests::flat_libraries_require_physical_target_headers",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 166,
+      "file": "src/nvsdk.rs",
+      "line": 936,
+      "symbol": "tests::tagged_dynamic_files_still_require_native_binary_headers",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 167,
+      "file": "src/nvsdk.rs",
+      "line": 981,
+      "symbol": "tests::linux_cudnn_uses_flat_or_multiarch_headers",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 168,
+      "file": "src/nvsdk.rs",
+      "line": 1110,
+      "symbol": "tests::tagged_sdk_folders_respect_platform_and_target",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 169,
+      "file": "src/nvsdk.rs",
+      "line": 1278,
+      "symbol": "tests::nccl_versioned_soname_is_sufficient_native_library_evidence",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 170,
+      "file": "src/nvsdk.rs",
+      "line": 1408,
+      "symbol": "tests::nvapi_is_unsupported_on_linux_even_with_headers",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 171,
+      "file": "src/discovery.rs",
+      "line": 13,
+      "symbol": "RootRequest",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 172,
+      "file": "src/discovery.rs",
+      "line": 15,
+      "symbol": "RootRequest.variable",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 173,
+      "file": "src/discovery.rs",
+      "line": 17,
+      "symbol": "RootRequest.path",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 174,
+      "file": "src/discovery.rs",
+      "line": 21,
+      "symbol": "first_root",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 175,
+      "file": "src/discovery.rs",
+      "line": 27,
+      "symbol": "first_root_with",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 176,
+      "file": "src/discovery.rs",
+      "line": 47,
+      "symbol": "binary_arch",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 177,
+      "file": "src/discovery.rs",
+      "line": 354,
+      "symbol": "tests",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 178,
+      "file": "src/discovery.rs",
+      "line": 358,
+      "symbol": "tests::NEXT_FIXTURE",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 179,
+      "file": "src/discovery.rs",
+      "line": 360,
+      "symbol": "tests::check_binary",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 180,
+      "file": "src/discovery.rs",
+      "line": 373,
+      "symbol": "tests::elf",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 181,
+      "file": "src/discovery.rs",
+      "line": 383,
+      "symbol": "tests::pe",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 182,
+      "file": "src/discovery.rs",
+      "line": 695,
+      "symbol": "tests::elf_machine_class_and_encoding_must_agree",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 183,
+      "file": "src/discovery.rs",
+      "line": 717,
+      "symbol": "tests::pe_machine_and_checked_header_bounds_are_required",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 184,
+      "file": "src/discovery.rs",
+      "line": 739,
+      "symbol": "tests::first_nonempty_root_is_authoritative_even_when_invalid",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 185,
+      "file": "src/discovery.rs",
+      "line": 759,
+      "symbol": "tests::root_values_are_preserved_without_trimming_or_unicode_conversion",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 186,
+      "file": "src/optix.rs",
+      "line": 238,
+      "symbol": "NEXT_FIXTURE",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 187,
+      "file": "src/optix.rs",
+      "line": 240,
+      "symbol": "Fixture",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 188,
+      "file": "src/optix.rs",
+      "line": 240,
+      "symbol": "tests::Fixture.0",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 189,
+      "file": "src/optix.rs",
+      "line": 243,
+      "symbol": "new",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 190,
+      "file": "src/optix.rs",
+      "line": 261,
+      "symbol": "drop",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 191,
+      "file": "src/optix.rs",
+      "line": 279,
+      "symbol": "fixture_roots_are_unique_and_cleanup_is_owned",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 192,
+      "file": "src/nvsdk.rs",
+      "line": 1164,
+      "symbol": "ngx_windows_package_paths_preserve_target_and_release_precedence",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 193,
+      "file": "src/nvsdk.rs",
+      "line": 1226,
+      "symbol": "ngx_linux_package_paths_preserve_target_and_release_precedence",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 194,
+      "file": "src/nvsdk.rs",
+      "line": 1337,
+      "symbol": "video_codec_windows_imports_are_link_only_and_target_specific",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 195,
+      "file": "src/nvsdk.rs",
+      "line": 1369,
+      "symbol": "video_codec_linux_stubs_are_link_only_and_require_native_target",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 196,
+      "file": "src/cuda.rs",
+      "line": 446,
+      "symbol": "nvcc_on_path_with",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 197,
+      "file": "src/cuda.rs",
+      "line": 836,
+      "symbol": "path_scan_skips_stale_nvcc_but_explicit_root_remains_authoritative",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 198,
+      "file": "src/cuda.rs",
+      "line": 859,
+      "symbol": "toolkit_families_require_native_link_and_runtime_evidence",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 199,
+      "file": "src/nvsdk.rs",
+      "line": 1008,
+      "symbol": "tagged_sdk_archives_require_matching_format_and_architecture",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 200,
+      "file": "src/nvsdk.rs",
+      "line": 1062,
+      "symbol": "nvcomp_import_proof_is_independent_of_runtime_proof",
+      "review": "D11b full113 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 201,
+      "file": "src/discovery.rs",
+      "line": 103,
+      "symbol": "archive_arch",
+      "review": "D11a full106 freeze2",
+      "verdict": "REPAIR_REQUIRED_BOUNDS",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 202,
+      "file": "src/discovery.rs",
+      "line": 138,
+      "symbol": "archive_member_arch",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 203,
+      "file": "src/discovery.rs",
+      "line": 160,
+      "symbol": "checked_table",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 204,
+      "file": "src/discovery.rs",
+      "line": 165,
+      "symbol": "coff_machine_arch",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 205,
+      "file": "src/discovery.rs",
+      "line": 176,
+      "symbol": "coff_object_arch",
+      "review": "D11a full106 freeze2",
+      "verdict": "REPAIR_REQUIRED_BOUNDS",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 206,
+      "file": "src/discovery.rs",
+      "line": 213,
+      "symbol": "coff_import_arch",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 207,
+      "file": "src/discovery.rs",
+      "line": 240,
+      "symbol": "elf_object_arch",
+      "review": "D11a full106 freeze2",
+      "verdict": "REPAIR_REQUIRED_BOUNDS",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 208,
+      "file": "src/discovery.rs",
+      "line": 282,
+      "symbol": "test_archive",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 209,
+      "file": "src/discovery.rs",
+      "line": 287,
+      "symbol": "test_archive_members",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 210,
+      "file": "src/discovery.rs",
+      "line": 310,
+      "symbol": "test_object",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 211,
+      "file": "src/discovery.rs",
+      "line": 392,
+      "symbol": "check_archive",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 212,
+      "file": "src/discovery.rs",
+      "line": 425,
+      "symbol": "archive_proof_requires_physical_native_members",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 213,
+      "file": "src/discovery.rs",
+      "line": 472,
+      "symbol": "archives_reject_truncation_overflow_thin_and_missing_members",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 214,
+      "file": "src/discovery.rs",
+      "line": 502,
+      "symbol": "elf_archive_class_endian_version_and_table_bounds_must_agree",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 215,
+      "file": "src/discovery.rs",
+      "line": 537,
+      "symbol": "import_object",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 216,
+      "file": "src/discovery.rs",
+      "line": 549,
+      "symbol": "big_object",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 217,
+      "file": "src/discovery.rs",
+      "line": 562,
+      "symbol": "coff_archives_validate_short_import_bigobj_and_declared_tables",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 218,
+      "file": "src/discovery.rs",
+      "line": 636,
+      "symbol": "archives_skip_canonical_metadata_and_check_padding",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    },
+    {
+      "id": 219,
+      "file": "src/discovery.rs",
+      "line": 656,
+      "symbol": "archive_declared_symbol_and_extended_section_tables_are_bounded",
+      "review": "D11a full106 freeze2",
+      "verdict": "PASS_STATIC",
+      "execution": "PENDING_ROOT_GATES"
+    }
+  ],
+  "seams": [
+    "env E45 positive fixture now canonical native archive, negative/assertion expectations preserved; tool PATH and verified runtime remain independent.",
+    "CUDA archive_arch Coff/Elf and nvsdk matching native arch, no folder/tag/filename acceptance path.",
+    "VideoCodec link-only paths/stubs never runtime; NGX nested import and release/dev runtime paths preserved.",
+    "nv-bindgen emits separate link/native runtime metadata from one SDK snapshot."
+  ],
+  "ratchet": "Initial195 full audit rejected4; two disjoint repairs plus root format/reindex; full219 fresh static audit closes4 and root accepts new physical bounds gap. No full D11 approval until targeted repair/review."
+}

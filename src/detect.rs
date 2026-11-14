@@ -46,13 +46,14 @@ pub struct VsInfo {
 /// a C++ toolchain (`TeamExplorer`, `TestAgent`, ...) and any id Microsoft has not shipped yet:
 /// folding an unknown id into a known edition would quietly select the wrong install, which is the
 /// one failure this classification exists to prevent.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, clap::ValueEnum)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "cli", derive(clap::ValueEnum))]
 pub enum VsEdition {
     Community,
     Professional,
     Enterprise,
     BuildTools,
-    #[value(skip)]
+    #[cfg_attr(feature = "cli", value(skip))]
     Other,
 }
 
@@ -79,7 +80,8 @@ impl VsEdition {
 }
 
 /// How to treat Preview / Insiders installations.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, clap::ValueEnum)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+#[cfg_attr(feature = "cli", derive(clap::ValueEnum))]
 pub enum Prerelease {
     /// Not a candidate. The default, because an unqualified "give me a compiler" should not land
     /// on a preview channel just because it happens to carry the highest version number.
@@ -232,7 +234,10 @@ fn version_key(version: &str) -> Vec<u32> {
 /// and, when it is unset, reports that no complete Visual Studio instance exists.
 fn vswhere_exe() -> PathBuf {
     if let Some(root) = std::env::var_os("ProgramFiles(x86)") {
-        let candidate = PathBuf::from(root).join("Microsoft Visual Studio").join("Installer").join("vswhere.exe");
+        let candidate = PathBuf::from(root)
+            .join("Microsoft Visual Studio")
+            .join("Installer")
+            .join("vswhere.exe");
         if candidate.is_file() {
             return candidate;
         }
@@ -410,8 +415,14 @@ mod vs_tests {
 
     #[test]
     fn visual_studio_version_follows_the_selected_install() {
-        assert_eq!(vs("18.10.12210.168", VsEdition::Community, false).vs_ver(), "18.0");
-        assert_eq!(vs("17.14.37314.3", VsEdition::Enterprise, false).vs_ver(), "17.0");
+        assert_eq!(
+            vs("18.10.12210.168", VsEdition::Community, false).vs_ver(),
+            "18.0"
+        );
+        assert_eq!(
+            vs("17.14.37314.3", VsEdition::Enterprise, false).vs_ver(),
+            "17.0"
+        );
         assert_eq!(vs("16.11.5", VsEdition::BuildTools, false).vs_ver(), "16.0");
     }
 

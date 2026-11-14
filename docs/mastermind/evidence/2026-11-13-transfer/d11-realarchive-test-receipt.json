@@ -1,0 +1,101 @@
+{
+  "date": "2026-11-13",
+  "task": "D11 actual SDK archive test, source-only",
+  "source": {
+    "path": "C:/projects/projects.rust.cg/cglibs/vcv-rs/src/discovery.rs",
+    "sha256": "96548facd5a14bbb45ced776514161a6ea2764620b7aaebc1cd7f86321b8ab72",
+    "linecount": 1066,
+    "bytes": 40965,
+    "frozen": true
+  },
+  "symbol": {
+    "id": 226,
+    "name": "discovery.rs::<tests>::actual_sdk_archives_require_native_x64_members",
+    "line": 1042,
+    "attribute_start_line": 1040,
+    "end_line": 1065
+  },
+  "changed_range": {
+    "operation": "insert",
+    "new_lines": [
+      1039,
+      1065
+    ],
+    "added_lines": 27,
+    "original_module_closing_brace_moved_from": 1039,
+    "to": 1066
+  },
+  "preservation": {
+    "frozen_original_sha256": "d85930e69186d7c37f587e3f98f0d0c885efd560bf6eb19b0fa6e0c0cdc1731c",
+    "removing_exact_insert_in_memory_reproduces_original_sha256": "d85930e69186d7c37f587e3f98f0d0c885efd560bf6eb19b0fa6e0c0cdc1731c",
+    "all_original_source_bytes_preserved": true,
+    "production_prefix_before_first_cfg_test_sha256_before_and_after": "736d166570296f744da6f9e2e9f959917c317acb86af6f28c2b5fdcfdf098056",
+    "runtime_and_archive_production_unchanged": true,
+    "original_225_ids_preserved": true,
+    "consumers": [
+      {
+        "path": "C:/projects/projects.rust.cg/cglibs/vcv-rs/src/cuda.rs",
+        "sha256": "a1aef9ae1e89894f001b551ff7022703275b098a903422187233e2d2d1621fbc",
+        "unchanged_from_before": true
+      },
+      {
+        "path": "C:/projects/projects.rust.cg/cglibs/vcv-rs/src/nvsdk.rs",
+        "sha256": "3574f3e1635afbed421b41f93de1b695da722803097c0b055158df41848beb57",
+        "unchanged_from_before": true
+      },
+      {
+        "path": "C:/projects/projects.rust.cg/cglibs/vcv-rs/src/env.rs",
+        "sha256": "4a9a7d18b59c8ee5f48b1f156816578d896b7b99f224b8e8df08ad8186726572",
+        "unchanged_from_before": true
+      }
+    ]
+  },
+  "test_contract": {
+    "required_environment_variables": [
+      "VCV_TEST_COFF_ARCHIVE",
+      "VCV_TEST_ELF_ARCHIVE"
+    ],
+    "both_paths_obtained_before_classification": true,
+    "missing_variable_behavior": "expect panics with the variable name and actual x64 SDK archive file instruction",
+    "native_path_handling": "std::env::var_os -> PathBuf::from(OsString); no Unicode conversion",
+    "real_files": "path.is_file() asserted for both archives",
+    "cases": [
+      {
+        "variable": "VCV_TEST_COFF_ARCHIVE",
+        "format": "object::BinaryFormat::Coff",
+        "expected": "Some(Arch::X64)"
+      },
+      {
+        "variable": "VCV_TEST_ELF_ARCHIVE",
+        "format": "object::BinaryFormat::Elf",
+        "expected": "Some(Arch::X64)"
+      }
+    ],
+    "production_call": "archive_arch(&path, format)",
+    "ignored": true,
+    "ignore_reason": "requires VCV_TEST_COFF_ARCHIVE and VCV_TEST_ELF_ARCHIVE actual x64 SDK archive paths",
+    "no_host_conditional": true,
+    "no_synthetic_fixtures": true,
+    "no_payload_paths_or_payload_commit": true,
+    "no_filehash_dependency": true,
+    "claims": "header/member/range classification only; no link or load claim"
+  },
+  "graph": {
+    "status": "fresh HEAD at 6eb28c0, indexed 2026-11-13T20:21:23.9635331Z; worktree unstaged; supplied frozen source hash verified",
+    "context": "Module:src/discovery.rs:tests, original lines 393-1039",
+    "impact": "LOW, impactedCount 0",
+    "reindexed_by_this_agent": false
+  },
+  "verification": {
+    "readback": true,
+    "source_hash_reconstruction_exit_code": 0,
+    "tests_executed": false,
+    "builds_executed": false,
+    "cargo_executed": false,
+    "fmt_executed": false,
+    "git_mutation": false,
+    "index_mutation": false,
+    "lints_executed": false,
+    "scope": "source inspection and cryptographic byte-preservation checks only"
+  }
+}

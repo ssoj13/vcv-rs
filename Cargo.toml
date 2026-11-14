@@ -2,7 +2,7 @@
 name = "vcv-rs"
 version = "0.1.1"
 edition = "2024"
-description = "Fast Visual Studio environment setup"
+description = "Toolchain and NVIDIA SDK environments for Windows and Linux"
 license = "MIT"
 authors = ["joss13@gmail.com"]
 repository = "https://github.com/ssoj13/vcv-rs"
@@ -13,17 +13,17 @@ documentation = "https://docs.rs/vcv-rs"
 name = "vcv_rs"
 
 [features]
-# All on by default: CUDA and OptiX detection, and the Windows `vcv-rs` binary. Drop any with
+# All on by default: SDK detection and the Windows/Linux `vcv-rs` binary. Drop any with
 # `--no-default-features --features ...`, or all with `--no-default-features`.
 default = ["cuda", "optix", "nvsdk", "cli"]
-# Windows `vcv-rs` CLI. Harmless on other targets (stub binary).
-cli = []
+# Windows and Linux environment CLI; library-only builds do not need clap.
+cli = ["dep:clap"]
 # CUDA Toolkit detection and environment. Without it the CLI still works and simply
 # stops knowing about CUDA.
 cuda = []
 # OptiX SDK detection and environment (headers only; the runtime ships in the display driver).
 optix = []
-# Other NVIDIA SDKs: cuDNN, Video Codec, Optical Flow, NVAPI, NGX (DLSS), nvCOMP.
+# Other NVIDIA SDKs: cuDNN, Video Codec, Optical Flow, NVAPI, NGX, nvCOMP, NCCL.
 nvsdk = []
 
 [[bin]]
@@ -34,9 +34,10 @@ required-features = ["cli"]
 [dependencies]
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+clap = { version = "4", features = ["derive"], optional = true }
+object = { version = "=0.40.0", default-features = false, features = ["read_core", "archive", "elf", "pe", "std"] }
 
-# Windows-only: registry probing + the CLI's arg parser. A non-Windows build of
-# the library is a no-op stub and needs neither.
+# Windows registry probing is independent of the optional CLI.
 [target.'cfg(windows)'.dependencies]
 winreg = "0.56"
-clap = { version = "4", features = ["derive"] }
+windows-sys = { version = "0.61.2", features = ["Win32_Foundation", "Win32_Globalization"] }

@@ -1,0 +1,117 @@
+{
+  "objective": "Complete vcv-rs Windows/Linux under explicit sysgo/mastermind; consume pushed revision in nv-rs",
+  "phase": "D11 original4 closedstatic; new header-declared COFF/ELF physical-range gap repair active; D12F/H76 freshreview active; D13 manifestprep active",
+  "date": "2026-11-13",
+  "repos": {
+    "vcv": "C:/projects/projects.rust.cg/cglibs/vcv-rs",
+    "nv": "C:/projects/projects.rust.cg/cglibs/nv-rs"
+  },
+  "baseline": {
+    "vcv": "6eb28c0a4c78a5b34771dbfbb5b14742ecb696ca",
+    "nv": "8b7e13ccc90340bf7c1385878fd0b5e82c30afe0"
+  },
+  "source_receipt": "source-freeze-2.json",
+  "native_agents": {
+    "d11": "/root/vcv_d11",
+    "d12": "/root/vcv_d12",
+    "d13": "/root/vcv_d13",
+    "docs": "/root/recovery_docs"
+  },
+  "domains": {
+    "d11": {
+      "rows": 219,
+      "status": "219 independentlyaudited;D11b113approvedstatic,D11a103/106pass; rows201/205/207needboundsrepair",
+      "artifacts": [
+        "d11-freeze2-manifest219.json",
+        "d11-initial195-normalized.json",
+        "d11-freeze2-review219-normalized.json",
+        "d11a-closure2-bounds-addendum.json"
+      ],
+      "active_worker": "/root/vcv_d11/archive_owner_repair",
+      "write_scope": "discovery.rs ONLY",
+      "repair": "basic declared physical COFF/ELF data ranges, preserve uninitialized/NOBITS/NULL semantics, nofullrelocations/symbolsemantics; APIandconsumersfrozen",
+      "receipt_pending": "d11-extent-repair-receipt.json"
+    },
+    "d12": {
+      "rows": 125,
+      "status": "76F/Hfreshreadonlycriticactive;49Envindependentreviewstillpending",
+      "active_critic": "/root/vcv_d12/d12_fh_inquisitor",
+      "manifest": "Parent /root/vcv_d12 final message hascomplete125IDs/pins; preparedpartitions",
+      "pins": {
+        "env": "4a9a7d18b59c8ee5f48b1f156816578d896b7b99f224b8e8df08ad8186726572",
+        "format": "60b9a806211e74d55e068e859459678d72023c34dc67e3b38d1565fe4238af38",
+        "harness": "67c64339eadc62f1392a5417a09ee640374cbdf4a39421711e70bf662dd998ec"
+      }
+    },
+    "d13": {
+      "rows": 110,
+      "status": "coordinator preparingpostfmt110-IDmanifestONLY; nochilduntilrootgrant"
+    }
+  },
+  "focused_review": {
+    "provider": "Cursor Grok4.7",
+    "status": "APPROVED0 source-only10rows/all7; no execution",
+    "artifact": "ordinal-review.json",
+    "server_run": 18,
+    "process": "stopped after results"
+  },
+  "execution": {
+    "rule": "All involved code repos committed+pushed main before build/check/test; root serializes all gates after resource/process check; owner overrides absent buildlock",
+    "commands_run": "cargo +1.98.0 fmt --all only; NO build/check/test yet",
+    "windows_rust": "1.98.0 with clippy/rustfmt installed",
+    "linux": "WSL Ubuntu26.04.1 x86_64/glibc2.43, rust1.98.0 withclippy/rustfmt",
+    "linux_pwsh": "/tmp/vcv-pwsh-7.6.10.x7KgGj/pwsh",
+    "pwsh_sha256": "e261cabc91c78a9afe8d1e5f24731ab0d38204735ab2ec94b0af55102652e10d",
+    "windows_pwsh": "7.6.10 plus legacy5.1",
+    "linux_target": "/home/joss/.cache/vcv-verify-Feynman15-4299",
+    "scripts": [
+      "matrix-windows.ps1",
+      "matrix-linux.sh"
+    ],
+    "optional_tests": [
+      "powershell_core_shell_roundtrip",
+      "git_bash_shell_roundtrip"
+    ],
+    "mutant": "VCV_TEST_QUOTE_MUTANT=1 expected red then normal green",
+    "smokes": [
+      "actual --list and JSON selected metadata",
+      "native.c expected vcv_native_env_ok",
+      "native.cu expected vcv_cuda_env_ok; no GPU claim"
+    ],
+    "smoke_scripts": [
+      "native-windows.ps1",
+      "native-linux.sh"
+    ]
+  },
+  "next": [
+    "After discovery extentworker freezes: root rustfmt discoveryONLY/reindex/fingerprint then followupD11 forfreshreadonlyextentclosure; no fullscopeclaimuntilzero. Coordinate4activeslots bylettingwaitingparentsreturninterim whilechildrenrun.",
+    "Fresh D11/D12/D13 manifests all7 reviews; repair/re-review findings",
+    "Update docs via iroh from static evidence, localAGENTS traps required",
+    "Commit+push vcv-rs DCO main; cargo update -p vcv-rs in nv-rs host+device(no builds); commit/push nv-rs source checkpoint, preserve M2 unverified",
+    "Resource/process inventory then serialized narrow/default checks, 16featurematrix eachOS, final clippy/fulltests eachOS, optionalnative shells/mutant/smokes",
+    "Verify nv-bindgen affected consumer with pushed vcv revision on bothOS; no M2completion claim",
+    "Fresh docs evidence/graph/diff checks, final commits+pushes readback remote; concise report"
+  ],
+  "object_dependency": {
+    "version": "=0.40.0",
+    "default_features": false,
+    "features": [
+      "read_core",
+      "archive",
+      "elf",
+      "pe",
+      "std"
+    ],
+    "lock": "cargo +1.98.0 update -p vcv-rs addedonlyobject; metadata command,noexecutiongate"
+  },
+  "oracle": {
+    "windowsArchive": "C:/projects/projects.rust.cg/nv/Streamline/external/ngx-sdk/lib/Windows_x86_64/nvsdk_ngx_d.lib",
+    "windowsLLVM": "C:/Users/joss1/.filesystem-mcp-rs/tmp/run_command_1794612495931_d6a65359-b6cb-49f8-aee4-d7a1590a52fa_stdout.log",
+    "linuxArchive": "C:/Users/joss1/.filesystem-mcp-rs/tmp/vcv-verify-Feynman15-4299/libnvsdk_ngx.a",
+    "gitBlob": "814048ff314e060365422c0686dd428cd40e2eff",
+    "sha256": "d3c50bb0d9624fc35e502a8e929b8fc1e2b505017ebdb84c0d5b627e11a235df",
+    "linuxLLVM": "C:/Users/joss1/.filesystem-mcp-rs/tmp/run_command_1794612513685_531c0960-1f26-434d-8589-4be86b368ba9_stdout.log",
+    "result": "metadata-only LLVM COFFAMD64/ELF64x86_64 exit0; no projectexecutiongates"
+  },
+  "remote_refs": "git fetch origin main bothrepos succeeded, HEAD...origin/main 0/0 both at2026-11-13 23:35UTC"
+}

@@ -1,0 +1,13 @@
+{
+  "reviewer": "/root/vcv_d11/d11a_closure2",
+  "verdict": "REJECTED pending bounds repair",
+  "supersedes": "Earlier APPROVED_STATIC classification of physical data range issue as scope limit",
+  "rows": [
+    201,
+    205,
+    207
+  ],
+  "counterexample": "60-byte COFFx64 fixture: member36..40 SizeOfRawData=1, member40..44 PointerToRawData=u32::MAX. Existing classifier accepts impossible section payload extent.",
+  "repair": "Canonical header APIs and checked extents validate COFFsection data, ELFfile-backedsection/program data; preserve NOBITS/zero-data semantics. No full payload load/symbol or relocation contents/ABI/link proof. Short-import terminators explicit limit.",
+  "unchanged": "All other103 row assessments and compiler/runtime qualifications remain unchanged. No source writes or execution."
+}

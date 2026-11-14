@@ -1,0 +1,50 @@
+{
+  "state": "formatted-source-only;D11-four-finding-repair-written;unexecuted",
+  "files": [
+    {
+      "path": "src/cuda.rs",
+      "lines": 1277,
+      "sha256": "a1aef9ae1e89894f001b551ff7022703275b098a903422187233e2d2d1621fbc"
+    },
+    {
+      "path": "src/optix.rs",
+      "lines": 498,
+      "sha256": "0c25bfb1179d389cbd0b934203381bc09eca90d72d273b4a4eca2b58446c7806"
+    },
+    {
+      "path": "src/nvsdk.rs",
+      "lines": 1418,
+      "sha256": "3574f3e1635afbed421b41f93de1b695da722803097c0b055158df41848beb57"
+    },
+    {
+      "path": "src/discovery.rs",
+      "lines": 780,
+      "sha256": "93c932e0ed2b5b53273e43673873367e7a3ac2e033a4db2533b1ca5bdff94ef4"
+    },
+    {
+      "path": "src/env.rs",
+      "lines": 1007,
+      "sha256": "4a9a7d18b59c8ee5f48b1f156816578d896b7b99f224b8e8df08ad8186726572"
+    },
+    {
+      "path": "src/format.rs",
+      "lines": 685,
+      "sha256": "60b9a806211e74d55e068e859459678d72023c34dc67e3b38d1565fe4238af38"
+    },
+    {
+      "path": "tests/format_roundtrip.rs",
+      "lines": 696,
+      "sha256": "67c64339eadc62f1392a5417a09ee640374cbdf4a39421711e70bf662dd998ec"
+    },
+    {
+      "path": "Cargo.toml",
+      "lines": 43,
+      "sha256": "aefbc68bdc68fc6e8ce8b4d3d87528bc31ad7418f9c0e26bb3399623cdef91a4"
+    },
+    {
+      "path": "Cargo.lock",
+      "lines": 277,
+      "sha256": "a7be3f43bdcbac43e8d35aab8f488a902c917712c302600736e90011c1b99294"
+    }
+  ]
+}
